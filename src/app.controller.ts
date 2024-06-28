@@ -58,8 +58,8 @@ export class AppController {
   @Get('sendToChannel')
   @ApiOperation({ summary: 'Send message to channel' })
   @ApiQuery({ name: 'msg', required: true, description: 'Message to send' })
-  @ApiQuery({ name: 'chatId', required: true, description: 'Chat ID of the channel' })
-  @ApiQuery({ name: 'token', required: true, description: 'Token for authentication' })
+  @ApiQuery({ name: 'chatId', required: false, description: 'Chat ID of the channel' })
+  @ApiQuery({ name: 'token', required: false, description: 'Token for authentication' })
   async sendToChannel(
     @Query('msg') message: string,
     @Query('chatId') chatId: string,
