@@ -265,13 +265,13 @@ export class AppService implements OnModuleInit {
   }
 
   async getUserInfo(filter: any): Promise<any> {
-   const client = (await this.clientService.executeQuery(filter,))[0]
-   const result = {...client}
-   delete result['session'];
-   delete result['mobile'];
-   delete result['deploykey'];
-   delete result['repl']
-   return result
+    const client = <any>(await this.clientService.executeQuery(filter,))[0]
+    const result = { ...(client._doc ? client._doc : client) }
+    delete result['session'];
+    delete result['mobile'];
+    delete result['deploykey'];
+    delete result['repl']
+    return result
   }
 
 }
