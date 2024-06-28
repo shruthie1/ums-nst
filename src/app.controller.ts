@@ -66,7 +66,7 @@ export class AppController {
     @Query('token') token: string,
   ) {
     try {
-      if (message.length < 650) {
+      if (message.length < 650 && !message.toLowerCase().includes("Network%20Error")) {
         return await this.appService.sendtoChannel(chatId, token, message);
       } else {
         console.log("Skipped Message:", decodeURIComponent(message))
