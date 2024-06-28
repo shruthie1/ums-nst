@@ -99,12 +99,15 @@ export class AppService implements OnModuleInit {
     const recentAccessData = accessData.timestamps.filter(timestamp => currentTime - timestamp <= 15 * 60 * 1000);
     recentAccessData.push(currentTime);
     this.userAccessData.set(chatId, { videoDetails: accessData.videoDetails, timestamps: recentAccessData });
-    return { count: recentAccessData.length, videoDetails: accessData.videoDetails };
+    const result = { count: recentAccessData.length, videoDetails: accessData.videoDetails } 
+    console.log(result)
+    return result;
   }
 
   async updateRecentUser(chatId: string, videoDetails: any): Promise<void> {
     const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
     const updatedVideoDetails = { ...accessData.videoDetails, ...videoDetails };
+    console.log({ videoDetails: updatedVideoDetails, timestamps: accessData.timestamps })
     this.userAccessData.set(chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
   }
 
@@ -143,11 +146,12 @@ export class AppService implements OnModuleInit {
     } catch (error) {
       parseError(error);
     }
-
+    console.log(resp)
     return resp;
   }
 
   async sendtoChannel(chatId: string, token: string, message: string) {
+    console.log(decodeURIComponent(message))
     const url = `${ppplbot(chatId, token)}&text=${decodeURIComponent(message)}`;
     try {
       await fetchWithTimeout(url, {}, 0);
