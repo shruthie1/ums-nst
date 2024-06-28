@@ -66,10 +66,14 @@ export class AppController {
     @Query('token') token: string,
   ) {
     try {
-      return await this.appService.sendtoChannel(chatId, token, message);
+      if (message.length < 650) {
+        return await this.appService.sendtoChannel(chatId, token, message);
+      } else {
+        console.log("Skipped Message:", decodeURIComponent(message))
+        return 'sent'
+      }
     } catch (e) {
       parseError(e);
-      throw e; // optional, depending on how you want to handle errors
     }
   }
 
