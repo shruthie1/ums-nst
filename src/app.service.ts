@@ -269,8 +269,7 @@ export class AppService implements OnModuleInit {
     const result = { ...(client._doc ? client._doc : client) }
     delete result['session'];
     delete result['mobile'];
-    delete result['deploykey'];
-    delete result['repl']
+    delete result['deployKey'];
     return result
   }
 
