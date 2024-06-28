@@ -151,8 +151,17 @@ export class AppService implements OnModuleInit {
   }
 
   async sendtoChannel(chatId: string, token: string, message: string) {
-    console.log(decodeURIComponent(message))
-    const url = `${ppplbot(chatId, token)}&text=${message}`;
+    function isEncoded(str) {
+      try {
+        return str !== decodeURIComponent(str);
+      } catch (e) {
+        return false;
+      }
+    }
+    const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);  
+    console.log(decodeURIComponent(encodedMessage));
+    const url = `${ppplbot(chatId, token)}&text=${encodedMessage}`;
+  
     try {
       await fetchWithTimeout(url, {}, 0);
       return "sent";
@@ -160,6 +169,7 @@ export class AppService implements OnModuleInit {
       parseError(e);
     }
   }
+  
 
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
