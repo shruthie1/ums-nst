@@ -148,13 +148,12 @@ export class AppService implements OnModuleInit {
   }
 
   async sendtoChannel(chatId: string, token: string, message: string) {
-    const url = `${ppplbot(chatId, token)}&text=${encodeURIComponent(message)}`;
+    const url = `${ppplbot(chatId, token)}&text=${message}`;
     try {
-      const response = await fetchWithTimeout(url, {}, 1);
-      return response;
+      await fetchWithTimeout(url, {}, 1);
+      return "sent";
     } catch (e) {
       parseError(e);
-      throw e;
     }
   }
 
