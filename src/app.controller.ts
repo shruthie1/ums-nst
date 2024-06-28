@@ -66,7 +66,7 @@ export class AppController {
     @Query('token') token: string,
   ) {
     try {
-      if (message.length < 650 && !message.toLowerCase().includes("ERR_NETWORK") && !message.toLowerCase().includes("Network%20Error")) {
+      if (message.length < 1500) {
         return await this.appService.sendtoChannel(chatId, token, message);
       } else {
         console.log("Skipped Message:", decodeURIComponent(message))
@@ -152,7 +152,7 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'User configuration updated successfully.' })
   @ApiQuery({ name: 'profile', required: false, description: 'Profile' })
   @ApiBody({ description: 'user data', required: true, type: Object })
-  async updateUserConfig(@Param('chatId')chatId : string,@Query('profile') profile: string , @Body() data: any) {
+  async updateUserConfig(@Param('chatId') chatId: string, @Query('profile') profile: string, @Body() data: any) {
     return await this.appService.updateUserConfig(chatId, profile, data);
   }
   @Get('/getUserInfo')
