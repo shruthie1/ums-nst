@@ -241,11 +241,10 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async getUserData(profile: string, clientId: string, body: any): Promise<any> {
+  async getUserData(profile: string, clientId: string, chatId: string): Promise<any> {
     if (!profile) {
       profile = clientId?.replace(/\d/g, '')
     }
-    const chatId = body.chatId;
     return await this.userDataService.findOne(profile, chatId);
   }
 

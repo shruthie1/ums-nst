@@ -116,8 +116,9 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Video data retrieved successfully.' })
   @ApiQuery({ name: 'profile', required: false, description: 'Profile' })
   @ApiQuery({ name: 'clientId', required: false, description: 'clientId' })
-  async getVidData(@Query('profile') profile: string, @Query('clientId') clientId: string, @Body() body: any) {
-    return await this.appService.getUserData(profile, clientId, body);
+  @ApiQuery({ name: 'chatId', required: true, description: 'chatId' })
+  async getVidData(@Query('profile') profile: string, @Query('clientId') clientId: string, @Query('chatId') chatId: any) {
+    return await this.appService.getUserData(profile, clientId, chatId);
   }
 
   @Post('/getviddata')
