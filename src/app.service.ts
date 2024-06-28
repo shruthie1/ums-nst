@@ -99,7 +99,7 @@ export class AppService implements OnModuleInit {
     const recentAccessData = accessData.timestamps.filter(timestamp => currentTime - timestamp <= 15 * 60 * 1000);
     recentAccessData.push(currentTime);
     this.userAccessData.set(chatId, { videoDetails: accessData.videoDetails, timestamps: recentAccessData });
-    const result = { count: recentAccessData.length, videoDetails: accessData.videoDetails } 
+    const result = { count: recentAccessData.length, videoDetails: accessData.videoDetails }
     console.log(result)
     return result;
   }
@@ -152,7 +152,7 @@ export class AppService implements OnModuleInit {
 
   async sendtoChannel(chatId: string, token: string, message: string) {
     console.log(decodeURIComponent(message))
-    const url = `${ppplbot(chatId, token)}&text=${decodeURIComponent(message)}`;
+    const url = `${ppplbot(chatId, token)}&text=${message}`;
     try {
       await fetchWithTimeout(url, {}, 0);
       return "sent";
@@ -260,8 +260,8 @@ export class AppService implements OnModuleInit {
     return await this.userDataService.update(profile, chatId, body);
   }
 
-  async updateUserConfig(filter: any, data: any): Promise<any> {
-    // Implement your logic here
+  async updateUserConfig(chatId: string, profile: string, data: any): Promise<any> {
+    this.userDataService.update(profile, chatId, data)
   }
 
   async getUserConfig(filter: any): Promise<any> {

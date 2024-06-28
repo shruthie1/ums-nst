@@ -136,7 +136,8 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'User configuration updated successfully.' })
   @ApiBody({ description: 'Configuration data', required: true, type: Object })
   async updtaeUserConfig(@Query() filter: any, @Body() data: any) {
-    return await this.appService.updateUserConfig(filter, data);
+    throw new Error("Method not implemented")
+    // return await this.appService.updateUserConfig(filter, data);
   }
 
   @Get('/getUserConfig')
@@ -146,6 +147,14 @@ export class AppController {
     return await this.appService.getUserConfig(filter);
   }
 
+  @Post('/updateUserData/:chatId')
+  @ApiOperation({ summary: 'Get user configuration' })
+  @ApiResponse({ status: 200, description: 'User configuration updated successfully.' })
+  @ApiQuery({ name: 'profile', required: false, description: 'Profile' })
+  @ApiBody({ description: 'user data', required: true, type: Object })
+  async updateUserConfig(@Param('chatId')chatId : string,@Query('profile') profile: string , @Body() data: any) {
+    return await this.appService.updateUserConfig(chatId, profile, data);
+  }
   @Get('/getUserInfo')
   @ApiOperation({ summary: 'Get user information' })
   @ApiResponse({ status: 200, description: 'User information retrieved successfully.' })
