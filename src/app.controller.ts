@@ -77,7 +77,7 @@ export class AppController {
     }
   }
 
-  @Get('sendToAll')
+  @Get('sendToAll2')
   @ApiOperation({ summary: 'Send Enpoint to all clients' })
   @ApiQuery({ name: 'query', required: true, description: 'Endpoint to send' })
   async sendToAll(@Query('query') query: string) {
