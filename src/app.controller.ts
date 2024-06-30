@@ -147,6 +147,13 @@ export class AppController {
     return await this.appService.getUserConfig(filter);
   }
 
+  @Get('/getallupiIds')
+  @ApiOperation({ summary: 'Get all UpiIDs' })
+  @ApiResponse({ status: 200, description: 'All upi Ids retrieved successfully.' })
+  async getallupiIds() {
+    return await this.appService.getallupiIds();
+  }
+
   @Post('/updateUserData/:chatId')
   @ApiOperation({ summary: 'Get user configuration' })
   @ApiResponse({ status: 200, description: 'User configuration updated successfully.' })

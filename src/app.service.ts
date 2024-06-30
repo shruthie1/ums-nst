@@ -1,5 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { TelegramService, UsersService, parseError, UserDataService, ppplbot, fetchWithTimeout, ClientService, sleep, ActiveChannelsService } from 'commonService';
+import {
+  TelegramService, UsersService, parseError, UserDataService,
+  ppplbot, fetchWithTimeout, ClientService,
+  sleep, ActiveChannelsService, UpiIdService
+} from 'commonService';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import * as schedule from 'node-schedule-tz';
@@ -15,7 +19,8 @@ export class AppService implements OnModuleInit {
     private telegramService: TelegramService,
     private userDataService: UserDataService,
     private clientService: ClientService,
-    private activeChannelsService: ActiveChannelsService
+    private activeChannelsService: ActiveChannelsService,
+    private upiIdService: UpiIdService
   ) {
     console.log("App Module Constructor initiated !!");
   }
@@ -158,10 +163,10 @@ export class AppService implements OnModuleInit {
         return false;
       }
     }
-    const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);  
+    const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
     console.log(decodeURIComponent(encodedMessage));
     const url = `${ppplbot(chatId, token)}&text=${encodedMessage}`;
-  
+
     try {
       await fetchWithTimeout(url, {}, 0);
       return "sent";
@@ -169,7 +174,7 @@ export class AppService implements OnModuleInit {
       parseError(e);
     }
   }
-  
+
 
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
@@ -276,6 +281,10 @@ export class AppService implements OnModuleInit {
 
   async getUserConfig(filter: any): Promise<any> {
     // Implement your logic here
+  }
+
+  async getallupiIds() {
+    return await this.upiIdService.findOne();
   }
 
   async getUserInfo(filter: any): Promise<any> {
