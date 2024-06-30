@@ -66,7 +66,7 @@ export class AppController {
     @Query('token') token: string,
   ) {
     try {
-      if (message.length < 1500) {
+      if (false&&message.length < 1500) {
         return await this.appService.sendtoChannel(chatId, token, message);
       } else {
         console.log("Skipped Message:", decodeURIComponent(message))
@@ -77,7 +77,7 @@ export class AppController {
     }
   }
 
-  @Get('sendToAll2')
+  @Get('sendToAll')
   @ApiOperation({ summary: 'Send Enpoint to all clients' })
   @ApiQuery({ name: 'query', required: true, description: 'Endpoint to send' })
   async sendToAll(@Query('query') query: string) {
