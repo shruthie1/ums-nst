@@ -65,21 +65,25 @@ export class AppService implements OnModuleInit {
 
   async updateUsers(users: User[]) {
     for (const user of users) {
-      const telegramClient = await this.telegramService.createClient(user.mobile, false, false);
-      const lastActive = await telegramClient.getLastActiveTime();
-      const me = await telegramClient.getMe()
-      const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
-      const dialogs = await telegramClient.getDialogs({ limit: 500 });
-      const contacts = <Api.contacts.Contacts>await telegramClient.getContacts()
-      const callsInfo = await telegramClient.getCallLog();
-      await this.usersService.update(user.tgId, {
-        contacts: contacts.savedCount,
-        calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
-        firstName: me.firstName,
-        lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
-        lastActive, tgId: me.id.toString(), lastUpdated: new Date().toISOString().split('T')[0]
-      })
-      await this.telegramService.deleteClient(user.mobile);
+      try {
+        const telegramClient = await this.telegramService.createClient(user.mobile, false, false);
+        const lastActive = await telegramClient.getLastActiveTime();
+        const me = await telegramClient.getMe()
+        const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
+        const dialogs = await telegramClient.getDialogs({ limit: 500 });
+        const contacts = <Api.contacts.Contacts>await telegramClient.getContacts()
+        const callsInfo = await telegramClient.getCallLog();
+        await this.usersService.update(user.tgId, {
+          contacts: contacts.savedCount,
+          calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
+          firstName: me.firstName,
+          lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
+          lastActive, tgId: me.id.toString(), lastUpdated: new Date().toISOString().split('T')[0]
+        })
+        await this.telegramService.deleteClient(user.mobile);
+      } catch (error) {
+        parseError(error, "UMS :: ")
+      }
     }
   }
 
