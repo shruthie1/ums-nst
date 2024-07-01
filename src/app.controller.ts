@@ -119,6 +119,11 @@ export class AppController {
     return await this.appService.getRequestCall(username, chatId);
   }
 
+  @Get("exit")
+  exit(): string {
+    process.exit(1)
+  }
+
   @Get('/getviddata')
   @ApiOperation({ summary: 'Get video data' })
   @ApiResponse({ status: 200, description: 'Video data retrieved successfully.' })
