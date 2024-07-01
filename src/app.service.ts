@@ -180,6 +180,9 @@ export class AppService implements OnModuleInit {
     }
   }
 
+  async findAllMasked() {
+    return await this.clientService.findAllMasked()
+  }
 
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")

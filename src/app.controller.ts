@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { parseError } from 'commonService';
+import { Client } from 'commonService/dist/components/clients/schemas/client.schema';
 
 @Controller()
 export class AppController {
@@ -100,6 +101,13 @@ export class AppController {
   @ApiOperation({ summary: 'refreshmap for Clients' })
   async refreshmap(): Promise<void> {
     return this.appService.refreshmap();
+  }
+
+
+  @Get('maskedCls')
+  @ApiOperation({ summary: 'Cls Data' })
+  async maskedCls(): Promise<Client[]> {
+    return await this.appService.findAllMasked();
   }
 
   @Get('/requestcall')
