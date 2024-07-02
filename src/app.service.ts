@@ -2,7 +2,10 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   TelegramService, UsersService, parseError, UserDataService,
   ppplbot, fetchWithTimeout, ClientService,
-  sleep, ActiveChannelsService, UpiIdService
+  sleep, ActiveChannelsService, UpiIdService,
+  StatService,
+  PromoteStatService,
+  Stat2Service
 } from 'commonService';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
@@ -20,7 +23,10 @@ export class AppService implements OnModuleInit {
     private userDataService: UserDataService,
     private clientService: ClientService,
     private activeChannelsService: ActiveChannelsService,
-    private upiIdService: UpiIdService
+    private upiIdService: UpiIdService,
+    private statService: StatService,
+    private stat2Service: Stat2Service,
+    private promoteStatService: PromoteStatService
   ) {
     console.log("App Module Constructor initiated !!");
   }
@@ -38,9 +44,35 @@ export class AppService implements OnModuleInit {
         }
       })
 
+      schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
+        const now = new Date();
+        if (now.getUTCDate() % 5 === 1) {
+          setTimeout(async () => {
+            await this.activeChannelsService.resetAvailableMsgs();
+            await this.activeChannelsService.updateBannedChannels();
+            await this.activeChannelsService.updateDefaultReactions();
+          }, 30000);
+        }
+
+        await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
+        await this.userDataService.resetPaidUsers();
+        await this.statService.deleteAll();
+        await this.stat2Service.deleteAll();
+        await this.promoteStatService.reinitPromoteStats();
+      })
+
     } catch (error) {
       console.log("Some Error: ", error);
     }
+  }
+
+  async getPromotionStatsPlain() {
+    let resp = '';
+    const result = await this.promoteStatService.findAll();
+    for (const data of result) {
+      resp += `\n${data.client.toUpperCase()} : ${data.totalCount} ${data.totalCount > 0 ? ` | ${Number((Date.now() - data.lastUpdatedTimeStamp) / (1000 * 60)).toFixed(2)}` : ''}`;
+    }
+    return resp;
   }
 
   async leaveChannels() {
