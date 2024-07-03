@@ -269,10 +269,11 @@ export class AppService implements OnModuleInit {
     clients.map(async (document) => {
       try {
         let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 });
-        await fetchWithTimeout(`${(ppplbot())}&text=ChannelCount SendTrue - ${document.clientId}: ${resp.data.canSendTrueCount}`)
+        await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
         if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 300) {
           const keys = ['wife', 'adult', 'lanj', 'lesb', 'paid', 'coupl', 'cpl', 'randi', 'bhab', 'boy', 'girl', 'friend', 'frnd', 'boob', 'pussy', 'dating', 'swap', 'gay', 'sex', 'bitch', 'love', 'video', 'service', 'real', 'call', 'desi'];
           const result = await this.activeChannelsService.getActiveChannels(150, 0, keys, resp.data?.ids);
+          await fetchWithTimeout(`${(ppplbot())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`)
           this.joinChannelMap.set(document.repl, result);
         }
       } catch (error) {
@@ -289,7 +290,6 @@ export class AppService implements OnModuleInit {
       const keys = Array.from(this.joinChannelMap.keys());
       if (keys.length > 0) {
         console.log("In JOIN CHANNEL interval: ", new Date().toISOString());
-
         const promises = keys.map(async url => {
           const channels = this.joinChannelMap.get(url);
           if (channels && channels.length > 0) {
