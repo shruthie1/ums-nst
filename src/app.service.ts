@@ -221,7 +221,7 @@ export class AppService implements OnModuleInit {
   }
   async portalData(query: object) {
     const client = (await this.clientService.findAllMasked(query))[0];
-    const upis = this.upiIdService.findOne();
+    const upis = await this.upiIdService.findOne();
     return {client, upis}
   }
   async joinchannelForClients(): Promise<string> {
