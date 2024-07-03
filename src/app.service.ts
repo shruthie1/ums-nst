@@ -5,12 +5,16 @@ import {
   sleep, ActiveChannelsService, UpiIdService,
   StatService,
   PromoteStatService,
-  Stat2Service
+  Stat2Service,
+  ChannelsService
 } from 'commonService';
+import { CreateChannelDto } from 'commonService/dist/components/channels/dto/create-channel.dto';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import * as schedule from 'node-schedule-tz';
+import { TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
+import { Dialog } from 'telegram/tl/custom/dialog';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -26,7 +30,8 @@ export class AppService implements OnModuleInit {
     private upiIdService: UpiIdService,
     private statService: StatService,
     private stat2Service: Stat2Service,
-    private promoteStatService: PromoteStatService
+    private promoteStatService: PromoteStatService,
+    private channelsService: ChannelsService,
   ) {
     console.log("App Module Constructor initiated !!");
   }
@@ -116,9 +121,34 @@ export class AppService implements OnModuleInit {
           lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
           lastActive, tgId: me.id.toString()
         })
+        this.processChannels(dialogs)
         await this.telegramService.deleteClient(user.mobile);
       } catch (error) {
         parseError(error, "UMS :: ")
+      }
+    }
+  }
+
+  async processChannels(dialogs: TotalList<Dialog>) {
+    for (const chat of dialogs) {
+      if (chat.isChannel || chat.isGroup) {
+        const chatEntity = <Api.Channel>chat.entity;
+        const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
+        if (!chatEntity.broadcast && !cannotSendMsgs) {
+          const channel: CreateChannelDto = {
+            channelId: chatEntity.id.toString(),
+            canSendMsgs: true,
+            participantsCount: chatEntity.participantsCount,
+            private: false,
+            title: chatEntity.title,
+            broadcast: chatEntity.broadcast,
+            megagroup: chatEntity.megagroup,
+            restricted: chatEntity.restricted,
+            sendMessages: true,
+            username: chatEntity.username
+          }
+          this.channelsService.create(channel)
+        }
       }
     }
   }
@@ -222,7 +252,7 @@ export class AppService implements OnModuleInit {
   async portalData(query: object) {
     const client = (await this.clientService.findAllMasked(query))[0];
     const upis = await this.upiIdService.findOne();
-    return {client, upis}
+    return { client, upis }
   }
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")

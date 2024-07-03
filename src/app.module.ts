@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
-  ActiveChannelsModule, BuildModule, ClientModule,
+  ActiveChannelsModule, BuildModule, ChannelsModule, ClientModule,
   LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, UpiIdModule,
   UserDataModule, UsersModule
 } from 'commonService';
@@ -12,7 +12,8 @@ import {
     BuildModule, UsersModule, TelegramModule,
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
-    StatModule, Stat2Module, PromoteStatModule],
+    StatModule, Stat2Module, PromoteStatModule,
+    ChannelsModule],
   controllers: [AppController],
   providers: [AppService],
 })
