@@ -108,8 +108,14 @@ export class AppController {
 
   @Get('maskedCls')
   @ApiOperation({ summary: 'Cls Data' })
-  async maskedCls(): Promise<Client[]> {
-    return await this.appService.findAllMasked();
+  async maskedCls(@Query() query: object): Promise<Client[]> {
+    return await this.appService.findAllMasked(query);
+  }
+
+  @Get('portalData')
+  @ApiOperation({ summary: 'Cls Data' })
+  async portalData(@Query() query: object): Promise<{ client: Client, upis: object }> {
+    return await this.appService.portalData(query);
   }
 
   @Get('/requestcall')
@@ -189,7 +195,7 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Successful operation' })
   async getData(@Res() res: Response): Promise<void> {
     this.appService.checkAndRefresh();
-    
+
     res.setHeader('Content-Type', 'text/html');
     let resp = '<html><head></head><body>';
     resp += await this.appService.getData();

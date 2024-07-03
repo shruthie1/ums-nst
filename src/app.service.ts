@@ -216,10 +216,14 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async findAllMasked() {
-    return await this.clientService.findAllMasked()
+  async findAllMasked(query: object) {
+    return await this.clientService.findAllMasked(query)
   }
-
+  async portalData(query: object) {
+    const client = (await this.clientService.findAllMasked(query))[0];
+    const upis = this.upiIdService.findOne();
+    return {client, upis}
+  }
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
     await this.telegramService.disconnectAll();
