@@ -154,14 +154,21 @@ export class AppService implements OnModuleInit {
   }
 
   async getUser(limit?: number, skip?: number) {
-    const weekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-    console.log(weekAgo.toString())
-    const users = await this.usersService.executeQuery({
+    var currentDate = new Date();
+
+    var weekAgoDate = new Date(currentDate);
+    weekAgoDate.setDate(currentDate.getDate() - 7);
+
+    var monthAgoDate = new Date(currentDate);
+    monthAgoDate.setDate(currentDate.getDate() - 30);
+
+    var query = {
       $or: [
-        { "lastUpdated": { $lt: weekAgo.toString() } },
-        { "lastUpdated": { $exists: false } }
+        { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
+        { createdAt: { $lte: monthAgoDate }, updatedAt: { $lt: monthAgoDate } }
       ]
-    }, {}, limit || 300, skip || 0)
+    };
+    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0)
     return users;
   }
 
