@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { parseError } from 'commonService';
+import { Response } from 'express';
 import { Client } from 'commonService/dist/components/clients/schemas/client.schema';
 
 @Controller()
@@ -84,10 +85,11 @@ export class AppController {
   async sendToAll(@Query('query') query: string) {
     try {
       const decodedEndpoint = decodeURIComponent(query);
-      return await this.appService.sendToAll(decodedEndpoint);
+      this.appService.sendToAll(decodedEndpoint);
+      return `Send ${query}`
     } catch (e) {
       parseError(e);
-      throw e; // optional, depending on how you want to handle errors
+      throw e;
     }
   }
 
@@ -180,6 +182,25 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'User information retrieved successfully.' })
   async getUserInfo(@Query() filter: any) {
     return await this.appService.getUserInfo(filter);
+  }
+
+  @Get('getdata')
+  @ApiOperation({ summary: 'Get data and refresh periodically' })
+  @ApiResponse({ status: 200, description: 'Successful operation' })
+  async getData(@Res() res: Response): Promise<void> {
+    this.appService.checkAndRefresh();
+    
+    res.setHeader('Content-Type', 'text/html');
+    let resp = '<html><head></head><body>';
+    resp += await this.appService.getData();
+    resp += '</body></html>';
+    resp += `<script>
+                console.log("hi");
+                setInterval(() => {
+                  window.location.reload();
+                }, 20000);
+            </script>`;
+    res.send(resp);
   }
 
 }

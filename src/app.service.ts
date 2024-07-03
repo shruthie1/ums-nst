@@ -30,18 +30,22 @@ export class AppService implements OnModuleInit {
   ) {
     console.log("App Module Constructor initiated !!");
   }
+  private refresTime: number = 0;
 
   onModuleInit() {
     console.log("App Module initiated !!");
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
         this.processUsers(400, 0);
+        await this.statService.deleteAll();
       })
-      schedule.scheduleJob('test3', '25 2 * * * ', 'Asia/Kolkata', async () => {
+
+      schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
         const now = new Date();
         if (now.getUTCDate() % 3 === 1) {
-          this.leaveChannels()
+          this.leaveChannelsAll()
         }
+        await this.joinchannelForClients()
       })
 
       schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
@@ -75,7 +79,7 @@ export class AppService implements OnModuleInit {
     return resp;
   }
 
-  async leaveChannels() {
+  async leaveChannelsAll() {
     await this.sendToAll('leavechannels')
   }
 
@@ -110,7 +114,7 @@ export class AppService implements OnModuleInit {
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
           lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
-          lastActive, tgId: me.id.toString(), lastUpdated: new Date().toISOString().split('T')[0]
+          lastActive, tgId: me.id.toString()
         })
         await this.telegramService.deleteClient(user.mobile);
       } catch (error) {
@@ -281,8 +285,7 @@ export class AppService implements OnModuleInit {
   }
 
   async blockUserAll(tgId: string) {
-    await this.userDataService.updateAll(tgId, { canReply: 0, payAmount: 0 })
-    return "blocked sucessfully"
+    return await this.userDataService.updateAll(tgId, { canReply: 0, payAmount: 0 })
   }
 
   async getRequestCall(username: string, chatId: string): Promise<any> {
@@ -336,4 +339,121 @@ export class AppService implements OnModuleInit {
     return result
   }
 
+  extractNumberFromString(inputString) {
+    const regexPattern = /\d+/;
+    const matchResult = inputString?.match(regexPattern);
+    if (matchResult && matchResult.length > 0) {
+      // Parse the matched string into a number and return it
+      return parseInt(matchResult[0], 10);
+    }
+    // If no number is found, return null
+    return null;
+  }
+
+  async createInitializedObject() {
+    const clients = await this.clientService.findAll();
+    const initializedObject = {};
+    for (const user of clients) {
+      if (this.extractNumberFromString(user.clientId))
+        initializedObject[user.clientId.toUpperCase()] = {
+          profile: user.clientId.toUpperCase(),
+          totalCount: 0,
+          totalPaid: 0,
+          totalOldPaid: 0,
+          oldPaidDemo: 0,
+          totalpendingDemos: 0,
+          oldPendingDemos: 0,
+          totalNew: 0,
+          totalNewPaid: 0,
+          newPaidDemo: 0,
+          newPendingDemos: 0,
+          names: "",
+          fullShowPPl: 0,
+          fullShowNames: ""
+        }
+    }
+
+    return initializedObject;
+  }
+
+  async getData(): Promise<string> {
+    const profileData = await this.createInitializedObject();
+    const stats = await this.statService.findAll();
+    for (const stat of stats) {
+      const { count, newUser, payAmount, demoGivenToday, demoGiven, profile, client, name, secondShow } = stat;
+
+      if (client && profileData[client.toUpperCase()]) {
+        const userData = profileData[client.toUpperCase()];
+        userData.totalCount += count;
+        userData.totalPaid += payAmount > 0 ? 1 : 0;
+        userData.totalOldPaid += (payAmount > 0 && !newUser) ? 1 : 0;
+        userData.oldPaidDemo += (demoGivenToday && !newUser) ? 1 : 0;
+        userData.totalpendingDemos += (payAmount > 25 && !demoGiven) ? 1 : 0;
+        userData.oldPendingDemos += (payAmount > 25 && !demoGiven && !newUser) ? 1 : 0;
+        if (payAmount > 25 && !demoGiven) {
+          userData.names = userData.names + ` ${name} |`;
+        }
+
+        if (demoGiven && ((payAmount > 90 && !secondShow) || (payAmount > 150 && secondShow))) {
+          userData.fullShowPPl++;
+          userData.fullShowNames = userData.fullShowNames + ` ${name} |`;
+        }
+
+        if (newUser) {
+          userData.totalNew += 1;
+          userData.totalNewPaid += payAmount > 0 ? 1 : 0;
+          userData.newPaidDemo += demoGivenToday ? 1 : 0;
+          userData.newPendingDemos += (payAmount > 25 && !demoGiven) ? 1 : 0;
+        }
+      }
+    }
+
+    const profileDataArray = Object.entries(profileData);
+    profileDataArray.sort((a: any, b: any) => b[1].totalpendingDemos - a[1].totalpendingDemos);
+    let reply = '';
+    for (const [profile, userData] of profileDataArray) {
+      reply += `${profile.toUpperCase()} : <b>${(userData as any).totalpendingDemos}</b> | ${(userData as any).names}<br>`;
+    }
+
+    profileDataArray.sort((a: any, b: any) => b[1].fullShowPPl - a[1].fullShowPPl);
+    let reply2 = '';
+    for (const [profile, userData] of profileDataArray) {
+      reply2 += `${profile.toUpperCase()} : <b>${(userData as any).fullShowPPl}</b> |${(userData as any).fullShowNames}<br>`;
+    }
+
+    const reply3 = await this.getPromotionStats();
+    console.log(reply3)
+
+    return (
+      `<div>
+        <div style="display: flex; margin-bottom: 60px">
+          <div style="flex: 1;">${reply}</div>
+          <div style="flex: 1; ">${reply2}</div>
+        </div>
+        <div style="display: flex;">
+          <div style="flex: 1; " >${reply3}</div>
+        </div>
+      </div>`
+    );
+  }
+
+  async getPromotionStats(): Promise<string> {
+    let resp = '';
+    const result = await this.promoteStatService.findAll();
+    for (const data of result) {
+      resp += `${data.client.toUpperCase()} : <b>${data.totalCount}</b>${data.totalCount > 0 ? ` | ${Number((Date.now() - data.lastUpdatedTimeStamp) / (1000 * 60)).toFixed(2)}` : ''}<br>`;
+    }
+    return resp;
+  }
+
+  async checkAndRefresh() {
+    if (Date.now() > this.refresTime) {
+      this.refresTime = Date.now() + (5 * 60 * 1000);
+      const clients = await this.clientService.findAll()
+      for (const value of clients) {
+        await fetchWithTimeout(`${value.repl}/markasread`);
+        await sleep(3000);
+      }
+    }
+  }
 }
