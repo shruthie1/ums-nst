@@ -131,24 +131,28 @@ export class AppService implements OnModuleInit {
 
   async processChannels(dialogs: TotalList<Dialog>) {
     for (const chat of dialogs) {
-      if (chat.isChannel || chat.isGroup) {
-        const chatEntity = <Api.Channel>chat.entity;
-        const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
-        if (!chatEntity.broadcast && !cannotSendMsgs) {
-          const channel: CreateChannelDto = {
-            channelId: chatEntity.id.toString(),
-            canSendMsgs: true,
-            participantsCount: chatEntity.participantsCount,
-            private: false,
-            title: chatEntity.title,
-            broadcast: chatEntity.broadcast,
-            megagroup: chatEntity.megagroup,
-            restricted: chatEntity.restricted,
-            sendMessages: true,
-            username: chatEntity.username
+      try {
+        if (chat.isChannel || chat.isGroup) {
+          const chatEntity = <Api.Channel>chat.entity;
+          const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
+          if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50) {
+            const channel: CreateChannelDto = {
+              channelId: chatEntity.id.toString(),
+              canSendMsgs: true,
+              participantsCount: chatEntity.participantsCount,
+              private: false,
+              title: chatEntity.title,
+              broadcast: chatEntity.broadcast,
+              megagroup: chatEntity.megagroup,
+              restricted: chatEntity.restricted,
+              sendMessages: true,
+              username: chatEntity.username
+            }
+            this.channelsService.create(channel)
           }
-          this.channelsService.create(channel)
         }
+      } catch (error) {
+        parseError(error)
       }
     }
   }
