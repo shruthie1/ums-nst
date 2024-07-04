@@ -127,6 +127,20 @@ export class AppController {
     return await this.appService.getRequestCall(username, chatId);
   }
 
+  @Get('exitPrimary')
+  @ApiOperation({ summary: 'Exit primary clients' })
+  @ApiResponse({ status: 200, description: 'exit Call request processed successfully.' })
+  async exitPrimary() {
+    this.appService.exitPrimary();
+    return 'ok';
+  }
+  
+  @Get('exitSecondary')
+  async exitSecondary() {
+    this.appService.exitPrimary();
+    return 'ok';
+  }
+
   @Get("exit")
   exit(): string {
     process.exit(1)

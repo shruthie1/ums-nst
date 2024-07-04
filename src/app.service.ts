@@ -98,6 +98,26 @@ export class AppService implements OnModuleInit {
     }
   }
 
+  public async exitPrimary() {
+    const clients = await this.clientService.findAll();
+    for (const client of clients) {
+      if (client.clientId.toLowerCase().includes('1')) {
+        await fetchWithTimeout(`${client.repl}/exit`);
+        await sleep(40000);
+      }
+    }
+  }
+
+  public async exitSecondary() {
+    const clients = await this.clientService.findAll();
+    for (const client of clients) {
+      if (client.clientId.toLowerCase().includes('2')) {
+        await fetchWithTimeout(`${client.repl}/exit`);
+        await sleep(40000);
+      }
+    }
+  }
+
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
     this.updateUsers(users);
