@@ -103,7 +103,7 @@ export class AppService implements OnModuleInit {
     const clients = await this.clientService.findAll();
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('1')) {
-        await fetchWithTimeout(`${client.repl}/exit`);
+        await fetchWithTimeout(`${client.repl}/exec/refresh`);
         await sleep(40000);
       }
     }
@@ -113,7 +113,7 @@ export class AppService implements OnModuleInit {
     const clients = await this.clientService.findAll();
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('2')) {
-        await fetchWithTimeout(`${client.repl}/exit`);
+        await fetchWithTimeout(`${client.repl}/exec/refresh`);
         await sleep(40000);
       }
     }
