@@ -132,13 +132,13 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'exit Call request processed successfully.' })
   async exitPrimary() {
     this.appService.exitPrimary();
-    return 'ok';
+    return '1';
   }
   
   @Get('exitSecondary')
   async exitSecondary() {
-    this.appService.exitPrimary();
-    return 'ok';
+    this.appService.exitSecondary();
+    return '2';
   }
 
   @Get("exit")
