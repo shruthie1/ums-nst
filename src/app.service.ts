@@ -41,6 +41,7 @@ export class AppService implements OnModuleInit {
     console.log("App Module initiated !!");
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
+        await  this.clientService.refreshMap();
         this.processUsers(400, 0);
         await this.statService.deleteAll();
       })
