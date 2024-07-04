@@ -70,7 +70,7 @@ export class AppService implements OnModuleInit {
         await this.stat2Service.deleteAll();
         await this.promoteStatService.reinitPromoteStats();
       })
-
+      console.log("Added All Cron Jobs")
     } catch (error) {
       console.log("Some Error: ", error);
     }
