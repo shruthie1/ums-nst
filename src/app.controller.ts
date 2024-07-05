@@ -127,6 +127,20 @@ export class AppController {
     return await this.appService.getRequestCall(username, chatId);
   }
 
+  @Get('refreshPrimary')
+  @ApiOperation({ summary: 'Exit primary clients' })
+  @ApiResponse({ status: 200, description: 'exit Call request processed successfully.' })
+  async refreshPrimary() {
+    this.appService.refreshPrimary();
+    return '1';
+  }
+  
+  @Get('refreshSecondary')
+  async refreshSecondary() {
+    this.appService.refreshSecondary();
+    return '2';
+  }
+
   @Get('exitPrimary')
   @ApiOperation({ summary: 'Exit primary clients' })
   @ApiResponse({ status: 200, description: 'exit Call request processed successfully.' })

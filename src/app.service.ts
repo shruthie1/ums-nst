@@ -103,13 +103,33 @@ export class AppService implements OnModuleInit {
     const clients = await this.clientService.findAll();
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('1')) {
-        await fetchWithTimeout(`${client.repl}/exec/refresh`);
+        await fetchWithTimeout(`${client.repl}/exit`);
         await sleep(40000);
       }
     }
   }
 
   public async exitSecondary() {
+    const clients = await this.clientService.findAll();
+    for (const client of clients) {
+      if (client.clientId.toLowerCase().includes('2')) {
+        await fetchWithTimeout(`${client.repl}/exit`);
+        await sleep(40000);
+      }
+    }
+  }
+
+  public async refreshPrimary() {
+    const clients = await this.clientService.findAll();
+    for (const client of clients) {
+      if (client.clientId.toLowerCase().includes('1')) {
+        await fetchWithTimeout(`${client.repl}/exec/refresh`);
+        await sleep(40000);
+      }
+    }
+  }
+
+  public async refreshSecondary() {
     const clients = await this.clientService.findAll();
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('2')) {
