@@ -41,7 +41,7 @@ export class AppService implements OnModuleInit {
     console.log("App Module initiated !!");
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
-        await  this.clientService.refreshMap();
+        await this.clientService.refreshMap();
         this.processUsers(400, 0);
         await this.statService.deleteAll();
       })
@@ -70,10 +70,27 @@ export class AppService implements OnModuleInit {
         await this.stat2Service.deleteAll();
         await this.promoteStatService.reinitPromoteStats();
       })
+      this.checkPromotions();
       console.log("Added All Cron Jobs")
     } catch (error) {
       console.log("Some Error: ", error);
     }
+  }
+
+  async checkPromotions() {
+    setInterval(async () => {
+      const clients = await this.clientService.findAll();
+      for (const client of clients) {
+        const userPromoteStats = await this.promoteStatService.findByClient(client.clientId)
+        if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 12) {
+          try {
+            await fetchWithTimeout(`${client.repl}/promote`, { timeout: 120000 });
+          } catch (error) {
+            parseError(error, "Promotion Check Err")
+          }
+        }
+      }
+    }, 2000)
   }
 
   async getPromotionStatsPlain() {
