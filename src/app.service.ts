@@ -112,7 +112,7 @@ export class AppService implements OnModuleInit {
       const url = `${client.repl}/${endpoint}`
       console.log("Trying : ", url)
       fetchWithTimeout(url);
-      await sleep(1000);
+      await sleep(2000);
     }
   }
 
