@@ -82,7 +82,7 @@ export class AppService implements OnModuleInit {
       const clients = await this.clientService.findAll();
       for (const client of clients) {
         const userPromoteStats = await this.promoteStatService.findByClient(client.clientId);
-        if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 12) {
+        if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 6) {
           try {
             await fetchWithTimeout(`${client.repl}/promote`, { timeout: 120000 });
             console.log(client, ": Promote Triggered!!");
