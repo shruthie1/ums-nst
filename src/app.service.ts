@@ -90,7 +90,7 @@ export class AppService implements OnModuleInit {
             parseError(error, "Promotion Check Err")
           }
         } else {
-          console.log(client, ": ALL Good!! ---", Math.floor((Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60)));
+          console.log(client.clientId, ": ALL Good!! ---", Math.floor((Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60)));
         }
       }
     }, 180000)
