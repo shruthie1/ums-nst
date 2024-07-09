@@ -85,7 +85,7 @@ export class AppService implements OnModuleInit {
         if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 6) {
           try {
             await fetchWithTimeout(`${client.repl}/promote`, { timeout: 120000 });
-            console.log(client, ": Promote Triggered!!");
+            console.log(client.clientId, ": Promote Triggered!!");
           } catch (error) {
             parseError(error, "Promotion Check Err")
           }
