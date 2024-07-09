@@ -209,7 +209,7 @@ export class AppService implements OnModuleInit {
               sendMessages: true,
               username: chatEntity.username
             }
-            this.channelsService.create(channel)
+            this.channelsService.update(channel.channelId, channel)
           }
         }
       } catch (error) {
