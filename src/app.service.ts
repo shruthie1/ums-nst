@@ -90,7 +90,7 @@ export class AppService implements OnModuleInit {
           }
         }
       }
-    }, 300000)
+    }, 180000)
   }
 
   async getPromotionStatsPlain() {
