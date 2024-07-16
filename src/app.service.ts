@@ -93,7 +93,7 @@ export class AppService implements OnModuleInit {
           console.log(client.clientId, ": ALL Good!! ---", Math.floor((Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60)));
         }
       }
-    }, 180000)
+    }, 240000)
   }
 
   async getPromotionStatsPlain() {
