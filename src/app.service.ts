@@ -40,37 +40,37 @@ export class AppService implements OnModuleInit {
   onModuleInit() {
     console.log("App Module initiated !!");
     try {
-      // schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
-      //   await this.clientService.refreshMap();
-      //   this.processUsers(400, 0);
-      //   await this.statService.deleteAll();
-      // })
+      schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
+        await this.clientService.refreshMap();
+        this.processUsers(400, 0);
+        await this.statService.deleteAll();
+      })
 
-      // schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
-      //   const now = new Date();
-      //   if (now.getUTCDate() % 3 === 1) {
-      //     this.leaveChannelsAll()
-      //   }
-      //   await this.joinchannelForClients()
-      // })
+      schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
+        const now = new Date();
+        if (now.getUTCDate() % 3 === 1) {
+          this.leaveChannelsAll()
+        }
+        await this.joinchannelForClients()
+      })
 
-      // schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
-      //   const now = new Date();
-      //   if (now.getUTCDate() % 9 === 1) {
-      //     setTimeout(async () => {
-      //       await this.activeChannelsService.resetAvailableMsgs();
-      //       await this.activeChannelsService.updateBannedChannels();
-      //       await this.activeChannelsService.updateDefaultReactions();
-      //     }, 30000);
-      //   }
+      schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
+        const now = new Date();
+        if (now.getUTCDate() % 9 === 1) {
+          setTimeout(async () => {
+            await this.activeChannelsService.resetAvailableMsgs();
+            await this.activeChannelsService.updateBannedChannels();
+            await this.activeChannelsService.updateDefaultReactions();
+          }, 30000);
+        }
 
-      //   await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
-      //   await this.userDataService.resetPaidUsers();
-      //   await this.statService.deleteAll();
-      //   await this.stat2Service.deleteAll();
-      //   await this.promoteStatService.reinitPromoteStats();
-      // })
-      this.checkPromotions();
+        await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
+        await this.userDataService.resetPaidUsers();
+        await this.statService.deleteAll();
+        await this.stat2Service.deleteAll();
+        await this.promoteStatService.reinitPromoteStats();
+      })
+      // this.checkPromotions();
       console.log("Added All Cron Jobs")
     } catch (error) {
       console.log("Some Error: ", error);
