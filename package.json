@@ -25,6 +25,7 @@
     "webpack": "webpack --mode  development",
     "compile": "npm run webpack",
     "compile-dev": "npm run webpack-dev",
+    "build:webpack": "npm i && npm run webpack",
     "upload-cloudinary": "node upload-build.js",
     "start:node": "node  --max-old-space-size=8192 ./out/index.js"
   },

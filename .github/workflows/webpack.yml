@@ -25,7 +25,7 @@ jobs:
 
     - name: Build
       run: |
-        npm run build
+        npm run build:webpack
         
     - name: Set branch name as environment variable
       id: branch_name
