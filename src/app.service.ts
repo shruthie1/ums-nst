@@ -191,6 +191,7 @@ export class AppService implements OnModuleInit {
   }
 
   async processChannels(dialogs: TotalList<Dialog>) {
+    const channels = []
     for (const chat of dialogs) {
       try {
         if (chat.isChannel || chat.isGroup) {
@@ -209,13 +210,14 @@ export class AppService implements OnModuleInit {
               sendMessages: true,
               username: chatEntity.username
             }
-            this.channelsService.update(channel.channelId, channel)
+            channels.push(channel)
           }
         }
       } catch (error) {
         parseError(error)
       }
     }
+    this.channelsService.createMultiple(channels)
   }
 
   async getUser(limit?: number, skip?: number) {
