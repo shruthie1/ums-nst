@@ -397,7 +397,7 @@ export class AppService implements OnModuleInit {
   }
 
   async getRequestCall(username: string, chatId: string): Promise<any> {
-    const user = (await this.clientService.search(username.toLowerCase()))[0];
+    const user = (await this.clientService.search({ username: username.toLowerCase() }))[0];
     console.log(`Call Request Recived: ${username} | ${chatId}`)
     if (user) {
       const payload = { chatId, profile: user.clientId }

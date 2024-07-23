@@ -20,7 +20,14 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "webpack-dev": "webpack --watch --mode development",
+    "webpack": "webpack --mode  development",
+    "compile": "npm run webpack",
+    "compile-dev": "npm run webpack-dev",
+    "build:webpack": "npm i && npm run webpack",
+    "upload-cloudinary": "node upload-build.js",
+    "start:node": "node  --max-old-space-size=8192 ./out/index.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -55,7 +62,10 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
