@@ -60,7 +60,7 @@ export class AppService implements OnModuleInit {
           setTimeout(async () => {
             await this.activeChannelsService.resetAvailableMsgs();
             await this.activeChannelsService.updateBannedChannels();
-            await this.activeChannelsService.updateDefaultReactions();
+            // await this.activeChannelsService.updateDefaultReactions();
           }, 30000);
         }
 
