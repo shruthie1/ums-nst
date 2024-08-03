@@ -336,8 +336,7 @@ export class AppService implements OnModuleInit {
         let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 });
         await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
         if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 300) {
-          const keys = ['wife', 'adult', 'lanj', 'lesb', 'paid', 'coupl', 'cpl', 'randi', 'bhab', 'boy', 'girl', 'friend', 'frnd', 'boob', 'pussy', 'dating', 'swap', 'gay', 'sex', 'bitch', 'love', 'video', 'service', 'real', 'call', 'desi'];
-          const result = await this.activeChannelsService.getActiveChannels(150, 0, keys, resp.data?.ids);
+          const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
           await fetchWithTimeout(`${(ppplbot())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`)
           this.joinChannelMap.set(document.repl, result);
         }
