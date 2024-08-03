@@ -162,7 +162,7 @@ export class AppService implements OnModuleInit {
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
     this.updateUsers(users);
-    return "Initiated Users Update"
+    return `Initiated Users Update: ${users.length}`
   }
 
   async updateUsers(users: User[]) {
@@ -184,6 +184,7 @@ export class AppService implements OnModuleInit {
         })
         this.processChannels(dialogs)
         await this.telegramService.deleteClient(user.mobile);
+        await sleep(10000)
       } catch (error) {
         parseError(error, "UMS :: ")
       }
