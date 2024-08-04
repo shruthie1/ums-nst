@@ -218,6 +218,7 @@ export class AppService implements OnModuleInit {
     }
   }
 
+
   async getUser(limit?: number, skip?: number) {
     var currentDate = new Date();
 
@@ -227,16 +228,19 @@ export class AppService implements OnModuleInit {
     var monthAgoDate = new Date(currentDate);
     monthAgoDate.setDate(currentDate.getDate() - 30);
 
+    var threeMonthAgoDate = new Date(currentDate);
+    threeMonthAgoDate.setDate(currentDate.getDate() - 90);
+
     var query = {
       $or: [
         { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-        { createdAt: { $lte: monthAgoDate }, updatedAt: { $lt: monthAgoDate } }
+        { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
+        { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
       ]
     };
     const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0)
     return users;
   }
-
   getHello(): string {
     return 'Hello World!';
   }
