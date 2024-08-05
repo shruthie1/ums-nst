@@ -107,6 +107,7 @@ export class AppService implements OnModuleInit {
   }
 
   async leaveChannelsAll() {
+    await fetchWithTimeout(`${(ppplbot())}&text=Leaveing Channels`)
     await this.sendToAll('leavechannels')
   }
 
