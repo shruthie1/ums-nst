@@ -170,14 +170,12 @@ export class AppService implements OnModuleInit {
       let telegramClient;
       try {
         telegramClient = await this.telegramService.createClient(user.mobile, false, false);
-        const [lastActive, me, selfMSgInfo, dialogs, contacts, callsInfo] = await Promise.all([
-          telegramClient.getLastActiveTime(),
-          telegramClient.getMe(),
-          telegramClient.getSelfMSgsInfo(),
-          telegramClient.getDialogs({ limit: 500 }),
-          telegramClient.getContacts() as Promise<Api.contacts.Contacts>,
-          telegramClient.getCallLog(),
-        ]);
+        const lastActive = await telegramClient.getLastActiveTime();
+        const me = await telegramClient.getMe();
+        const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
+        const dialogs = await telegramClient.getDialogs({ limit: 500 });
+        const contacts = await telegramClient.getContacts();
+        const callsInfo = await telegramClient.getCallLog();
 
         await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
@@ -185,12 +183,13 @@ export class AppService implements OnModuleInit {
           firstName: me.firstName,
           lastName: me.lastName,
           username: me.username,
-          msgs: selfMSgInfo.total,
+          msgs: selfMsgInfo.total,
           totalChats: dialogs.total,
           lastActive,
           tgId: me.id.toString(),
         });
         await this.processChannels(dialogs);
+        await sleep(2000)
       } catch (error) {
         parseError(error, "UMS :: ");
       } finally {
