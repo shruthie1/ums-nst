@@ -57,6 +57,7 @@ export class AppService implements OnModuleInit {
       schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
         const now = new Date();
         if (now.getUTCDate() % 15 === 0) {
+          await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
           setTimeout(async () => {
             await this.activeChannelsService.resetAvailableMsgs();
             await this.activeChannelsService.updateBannedChannels();
