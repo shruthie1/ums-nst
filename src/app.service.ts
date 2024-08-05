@@ -8,7 +8,6 @@ import {
   Stat2Service,
   ChannelsService
 } from 'commonService';
-import { CreateChannelDto } from 'commonService/dist/components/channels/dto/create-channel.dto';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import * as schedule from 'node-schedule-tz';
@@ -166,60 +165,65 @@ export class AppService implements OnModuleInit {
     this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
-
   async updateUsers(users: User[]) {
     for (const user of users) {
+      let telegramClient;
       try {
-        const telegramClient = await this.telegramService.createClient(user.mobile, false, false);
-        const lastActive = await telegramClient.getLastActiveTime();
-        const me = await telegramClient.getMe()
-        const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
-        const dialogs = await telegramClient.getDialogs({ limit: 500 });
-        const contacts = <Api.contacts.Contacts>await telegramClient.getContacts()
-        const callsInfo = await telegramClient.getCallLog();
+        telegramClient = await this.telegramService.createClient(user.mobile, false, false);
+        const [lastActive, me, selfMSgInfo, dialogs, contacts, callsInfo] = await Promise.all([
+          telegramClient.getLastActiveTime(),
+          telegramClient.getMe(),
+          telegramClient.getSelfMSgsInfo(),
+          telegramClient.getDialogs({ limit: 500 }),
+          telegramClient.getContacts() as Promise<Api.contacts.Contacts>,
+          telegramClient.getCallLog(),
+        ]);
+
         await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
-          lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
-          lastActive, tgId: me.id.toString()
-        })
-        this.processChannels(dialogs)
-        await this.telegramService.deleteClient(user.mobile);
-        await sleep(10000)
+          lastName: me.lastName,
+          username: me.username,
+          msgs: selfMSgInfo.total,
+          totalChats: dialogs.total,
+          lastActive,
+          tgId: me.id.toString(),
+        });
+        await this.processChannels(dialogs);
       } catch (error) {
-        parseError(error, "UMS :: ")
+        parseError(error, "UMS :: ");
+      } finally {
+        if (telegramClient) {
+          await this.telegramService.deleteClient(user.mobile);
+        }
       }
     }
   }
 
   async processChannels(dialogs: TotalList<Dialog>) {
-    const channels = []
-    for (const chat of dialogs) {
-      try {
-        if (chat.isChannel || chat.isGroup) {
-          const chatEntity = <Api.Channel>chat.entity;
-          const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
-          if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50) {
-            const channel: CreateChannelDto = {
-              channelId: chatEntity.id.toString(),
-              canSendMsgs: true,
-              participantsCount: chatEntity.participantsCount,
-              private: false,
-              title: chatEntity.title,
-              broadcast: chatEntity.broadcast,
-              megagroup: chatEntity.megagroup,
-              restricted: chatEntity.restricted,
-              sendMessages: true,
-              username: chatEntity.username
-            }
-            channels.push(channel)
-          }
+    const channels = dialogs
+      .filter(chat => chat.isChannel || chat.isGroup)
+      .map(chat => {
+        const chatEntity = <Api.Channel>chat.entity;
+        const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
+        if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50) {
+          return {
+            channelId: chatEntity.id.toString(),
+            canSendMsgs: true,
+            participantsCount: chatEntity.participantsCount,
+            private: false,
+            title: chatEntity.title,
+            broadcast: chatEntity.broadcast,
+            megagroup: chatEntity.megagroup,
+            restricted: chatEntity.restricted,
+            sendMessages: true,
+            username: chatEntity.username,
+          };
         }
-      } catch (error) {
-        parseError(error)
-      }
-    }
+      })
+      .filter(Boolean);
+
     this.channelsService.createMultiple(channels)
   }
 
