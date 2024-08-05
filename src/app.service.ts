@@ -11,7 +11,6 @@ import {
 import { CreateChannelDto } from 'commonService/dist/components/channels/dto/create-channel.dto';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
-import * as schedule from 'node-schedule-tz';
 import { TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
