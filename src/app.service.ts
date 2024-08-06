@@ -71,7 +71,10 @@ export class AppService implements OnModuleInit {
         await this.promoteStatService.reinitPromoteStats();
       })
       // this.checkPromotions();
-      console.log("Added All Cron Jobs")
+      console.log("Added All Cron Jobs");
+      setTimeout(() => {
+        this.processUsers(400, 0);
+      }, 120000);
     } catch (error) {
       console.log("Some Error: ", error);
     }
