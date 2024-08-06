@@ -173,7 +173,8 @@ export class AppService implements OnModuleInit {
     for (const user of users) {
       let telegramClient;
       try {
-        console.log("----------------------------------------------------------")
+        console.log("----------------------------------------------------------");
+        console.log("last Updated :: ", (user as any).updatedAt)
         telegramClient = await this.telegramService.createClient(user.mobile, true, false);
         const [lastActive, me, selfMsgInfo, dialogs, contacts, callsInfo] = await Promise.all([
           telegramClient.getLastActiveTime(),
@@ -195,8 +196,8 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
-        console.log(result);
-        this.processChannels(dialogs);
+        await this.processChannels(dialogs);
+        console.log("Updated count::", result);
       } catch (error) {
         parseError(error, "UMS :: ");
       } finally {
