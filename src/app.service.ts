@@ -165,6 +165,7 @@ export class AppService implements OnModuleInit {
 
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
+    console.log(`Initiated Users Update: ${users.length}`);
     this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
@@ -172,7 +173,8 @@ export class AppService implements OnModuleInit {
     for (const user of users) {
       let telegramClient;
       try {
-        telegramClient = await this.telegramService.createClient(user.mobile, false, false);
+        console.log("----------------------------------------------------------")
+        telegramClient = await this.telegramService.createClient(user.mobile, true, false);
         const [lastActive, me, selfMsgInfo, dialogs, contacts, callsInfo] = await Promise.all([
           telegramClient.getLastActiveTime(),
           telegramClient.getMe(),
@@ -182,7 +184,7 @@ export class AppService implements OnModuleInit {
           telegramClient.getCallLog()
         ]);
 
-        await this.usersService.update(user.tgId, {
+        const result = await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
@@ -193,7 +195,8 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
-        await this.processChannels(dialogs);
+        console.log(result);
+        this.processChannels(dialogs);
       } catch (error) {
         parseError(error, "UMS :: ");
       } finally {
@@ -246,11 +249,15 @@ export class AppService implements OnModuleInit {
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
 
     var query = {
-      $or: [
-        { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-        { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-        { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-      ]
+      $and: [
+        { updatedAt: { $lt: weekAgoDate } },
+        {
+          $or: [
+            { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
+            { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
+            { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
+          ]
+        }]
     };
     const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0)
     return users;
