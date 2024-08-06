@@ -244,12 +244,15 @@ export class AppService implements OnModuleInit {
 
     var weekAgoDate = new Date(currentDate);
     weekAgoDate.setDate(currentDate.getDate() - 7);
+    weekAgoDate.setHours(23, 59, 59, 999);
 
     var monthAgoDate = new Date(currentDate);
     monthAgoDate.setDate(currentDate.getDate() - 30);
+    monthAgoDate.setHours(23, 59, 59, 999);
 
     var threeMonthAgoDate = new Date(currentDate);
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
+    monthAgoDate.setHours(23, 59, 59, 999);
 
     var query = {
       $and: [
