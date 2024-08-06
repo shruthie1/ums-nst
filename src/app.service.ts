@@ -207,6 +207,8 @@ export class AppService implements OnModuleInit {
         await sleep(2000);
       }
     }
+    await this.telegramService.disconnectAll()
+    console.log("ProcessUsers finished");
   }
 
 
