@@ -10,6 +10,7 @@ import {
 } from 'commonService';
 import { CreateChannelDto } from 'commonService/dist/components/channels/dto/create-channel.dto';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
+import TelegramManager from 'commonService/dist/components/Telegram/TelegramManager';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import { TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
@@ -174,14 +175,15 @@ export class AppService implements OnModuleInit {
         const dialogs = await telegramClient.getDialogs({ limit: 500 });
         const contacts = <Api.contacts.Contacts>await telegramClient.getContacts()
         const callsInfo = await telegramClient.getCallLog();
+        const recentUsers = await this.processChannels(dialogs, telegramClient)
         await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
           lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
-          lastActive, tgId: me.id.toString()
+          lastActive, tgId: me.id.toString(),
+          recentUsers
         })
-        this.processChannels(dialogs)
         await this.telegramService.deleteClient(user.mobile);
       } catch (error) {
         parseError(error, "UMS :: ")
@@ -189,7 +191,8 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  async processChannels(dialogs: TotalList<Dialog>) {
+  async processChannels(dialogs: TotalList<Dialog>, telegramClient: TelegramManager) {
+    const recentUsers = []
     for (const chat of dialogs) {
       try {
         if (chat.isChannel || chat.isGroup) {
@@ -206,11 +209,32 @@ export class AppService implements OnModuleInit {
               megagroup: chatEntity.megagroup,
               restricted: chatEntity.restricted,
               sendMessages: true,
-              username: chatEntity.username
+              username: chatEntity.username,
+              forbidden: false
             }
             this.channelsService.update(channel.channelId, channel)
           }
+        } else {
+          const msgs = await telegramClient.getMessages(chat.id);
+          if (msgs.total > 1000) {
+            for (const message of msgs) {
+              let video = 0;
+              let photo = 0
+              if (message.media instanceof Api.MessageMediaPhoto) {
+                photo++
+              } else if (message.media instanceof Api.MessageMediaDocument && (message.document?.mimeType?.startsWith('video') || message.document?.mimeType?.startsWith('image'))) {
+                video++
+              }
+              recentUsers.push({
+                total: msgs.total,
+                video,
+                photo,
+                chatId: chat.id.toString(),
+              })
+            }
+          }
         }
+        return recentUsers;
       } catch (error) {
         parseError(error)
       }
