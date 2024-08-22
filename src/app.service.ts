@@ -231,6 +231,7 @@ export class AppService implements OnModuleInit {
             restricted: chatEntity.restricted,
             sendMessages: true,
             username: chatEntity.username,
+            forbidden: false
           };
         }
       })
