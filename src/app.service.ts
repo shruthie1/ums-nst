@@ -176,14 +176,13 @@ export class AppService implements OnModuleInit {
         console.log("----------------------------------------------------------");
         console.log("last Updated :: ", (user as any).updatedAt)
         telegramClient = await this.telegramService.createClient(user.mobile, true, false);
-        const [lastActive, me, selfMsgInfo, dialogs, contacts, callsInfo] = await Promise.all([
-          telegramClient.getLastActiveTime(),
-          telegramClient.getMe(),
-          telegramClient.getSelfMSgsInfo(),
-          telegramClient.getDialogs({ limit: 500 }),
-          telegramClient.getContacts(),
-          telegramClient.getCallLog()
-        ]);
+        const lastActive = await telegramClient.getLastActiveTime();
+        const me = await telegramClient.getMe();
+        const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
+        const dialogs = await telegramClient.getDialogs({ limit: 500 });
+        const contacts = await telegramClient.getContacts();
+        const callsInfo = await telegramClient.getCallLog();
+        console.log("last Active :: ", (user as any).lastActive)
 
         const result = await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
