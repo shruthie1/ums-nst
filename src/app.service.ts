@@ -64,7 +64,7 @@ export class AppService implements OnModuleInit {
           }, 30000);
         }
 
-        if (now.getUTCDate() % 15 === 0) {
+        if (now.getUTCDate() % 14 === 0) {
           setTimeout(async () => {
             await this.activeChannelsService.resetWordRestrictions();
           }, 30000);
