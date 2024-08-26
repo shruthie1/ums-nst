@@ -54,15 +54,21 @@ export class AppService implements OnModuleInit {
       })
 
       schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
-        // const now = new Date();
-        // if (now.getUTCDate() % 15 === 0) {
-        //   await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
-        //   setTimeout(async () => {
-        //     await this.activeChannelsService.resetAvailableMsgs();
-        //     await this.activeChannelsService.updateBannedChannels();
-        //     // await this.activeChannelsService.updateDefaultReactions();
-        //   }, 30000);
-        // }
+        const now = new Date();
+        if (now.getUTCDate() % 10 === 0) {
+          await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
+          setTimeout(async () => {
+            await this.activeChannelsService.resetAvailableMsgs();
+            await this.activeChannelsService.updateBannedChannels();
+            // await this.activeChannelsService.updateDefaultReactions();
+          }, 30000);
+        }
+
+        if (now.getUTCDate() % 15 === 0) {
+          setTimeout(async () => {
+            await this.activeChannelsService.resetWordRestrictions();
+          }, 30000);
+        }
 
         await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
         await this.userDataService.resetPaidUsers();
