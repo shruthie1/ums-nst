@@ -55,7 +55,7 @@ export class AppService implements OnModuleInit {
 
       schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
         const now = new Date();
-        if (now.getUTCDate() % 10 === 0) {
+        if (now.getUTCDate() % 7 === 0) {
           await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
           setTimeout(async () => {
             await this.activeChannelsService.resetAvailableMsgs();
@@ -64,7 +64,7 @@ export class AppService implements OnModuleInit {
           }, 30000);
         }
 
-        if (now.getUTCDate() % 14 === 0) {
+        if (now.getUTCDate() % 9 === 0) {
           setTimeout(async () => {
             await this.activeChannelsService.resetWordRestrictions();
           }, 30000);
