@@ -6,7 +6,8 @@ import {
   StatService,
   PromoteStatService,
   Stat2Service,
-  ChannelsService
+  ChannelsService,
+  PromoteClientService
 } from 'commonService';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
@@ -31,6 +32,7 @@ export class AppService implements OnModuleInit {
     private stat2Service: Stat2Service,
     private promoteStatService: PromoteStatService,
     private channelsService: ChannelsService,
+    private promoteClientService: PromoteClientService,
   ) {
     console.log("App Module Constructor initiated !!");
   }
@@ -215,6 +217,9 @@ export class AppService implements OnModuleInit {
     }
     await this.telegramService.disconnectAll()
     console.log("ProcessUsers finished");
+    setTimeout(() => {
+      this.promoteClientService.joinchannelForPromoteClients()
+    }, 2 * 60 * 1000);
   }
 
 
