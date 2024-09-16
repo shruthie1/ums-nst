@@ -189,6 +189,7 @@ export class AppService implements OnModuleInit {
         const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
         const dialogs = await telegramClient.getDialogs({ limit: 500 });
         const contacts = await telegramClient.getContacts();
+        const hasPassword = await telegramClient.hasPassword();
         const callsInfo = await telegramClient.getCallLog();
         console.log("last Active :: ", (user as any).lastActive)
 
@@ -200,6 +201,7 @@ export class AppService implements OnModuleInit {
           username: me.username,
           msgs: selfMsgInfo.total,
           totalChats: dialogs.total,
+          twoFA: hasPassword ? true : false,
           lastActive,
           tgId: me.id.toString(),
         });
@@ -252,18 +254,18 @@ export class AppService implements OnModuleInit {
 
   async getUser(limit?: number, skip?: number) {
     var currentDate = new Date();
-
+  
     var weekAgoDate = new Date(currentDate);
     weekAgoDate.setDate(currentDate.getDate() - 7);
     weekAgoDate.setHours(23, 59, 59, 999);
-
+  
     var monthAgoDate = new Date(currentDate);
     monthAgoDate.setDate(currentDate.getDate() - 30);
     monthAgoDate.setHours(23, 59, 59, 999);
-
+  
     var threeMonthAgoDate = new Date(currentDate);
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
-    monthAgoDate.setHours(23, 59, 59, 999);
+    threeMonthAgoDate.setHours(23, 59, 59, 999);
 
     var query = {
       $and: [
@@ -274,9 +276,11 @@ export class AppService implements OnModuleInit {
             { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
             { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
           ]
-        }]
+        }
+      ]
     };
-    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0)
+  
+    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0);
     return users;
   }
 
