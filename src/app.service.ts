@@ -269,7 +269,7 @@ export class AppService implements OnModuleInit {
 
     var query = {
       $and: [
-        { updatedAt: { $lt: weekAgoDate } },
+        { updatedAt: { $lt: weekAgoDate } , expired: false},
         {
           $or: [
             { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
