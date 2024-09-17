@@ -10,6 +10,7 @@ import {
   PromoteClientService
 } from 'commonService';
 import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
+import TelegramManager from 'commonService/dist/components/Telegram/TelegramManager';
 import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import * as schedule from 'node-schedule-tz';
 import { TotalList } from 'telegram/Helpers';
@@ -183,7 +184,7 @@ export class AppService implements OnModuleInit {
   }
   async updateUsers(users: User[]) {
     for (const user of users) {
-      let telegramClient;
+      let telegramClient: TelegramManager;
       try {
         console.log("----------------------------------------------------------");
         console.log("last Updated :: ", (user as any).updatedAt)
@@ -192,10 +193,13 @@ export class AppService implements OnModuleInit {
         const me = await telegramClient.getMe();
         const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
         const dialogs = await telegramClient.getDialogs({ limit: 500 });
-        const contacts = await telegramClient.getContacts();
+        const contacts = <Api.contacts.Contacts>await telegramClient.getContacts();
         const hasPassword = await telegramClient.hasPassword();
         const callsInfo = await telegramClient.getCallLog();
         console.log("last Active :: ", (user as any).lastActive)
+        if (callsInfo.chatCallCounts.length > 0) {
+          console.log("CallsInfo :: ", callsInfo.chatCallCounts)
+        }
 
         const result = await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
@@ -205,6 +209,11 @@ export class AppService implements OnModuleInit {
           username: me.username,
           msgs: selfMsgInfo.total,
           totalChats: dialogs.total,
+          ownPhotoCount: selfMsgInfo.ownPhotoCount,
+          movieCount: selfMsgInfo.movieCount,
+          otherPhotoCount: selfMsgInfo.otherPhotoCount,
+          otherVideoCount: selfMsgInfo.otherVideoCount,
+          ownVideoCount: selfMsgInfo.ownVideoCount,
           twoFA: hasPassword ? true : false,
           lastActive,
           tgId: me.id.toString(),
