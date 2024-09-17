@@ -280,23 +280,23 @@ export class AppService implements OnModuleInit {
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
     threeMonthAgoDate.setHours(23, 59, 59, 999);
 
-    // var query = {
-    //   $and: [
-    //     { updatedAt: { $lt: weekAgoDate }, expired: false },
-    //     {
-    //       $or: [
-    //         { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-    //         { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-    //         { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-    //       ]
-    //     }
-    //   ]
-    // };
-    const query = {
-      "calls.chatCallCounts": {
-        $ne: []
-      }
-    }
+    var query = {
+      $and: [
+        { updatedAt: { $lt: weekAgoDate }, expired: false },
+        {
+          $or: [
+            { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
+            { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
+            { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
+          ]
+        }
+      ]
+    };
+    // const query = {
+    //   "calls.chatCallCounts": {
+    //     $ne: []
+    //   }
+    // }
 
     const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0);
     return users;
