@@ -11,10 +11,10 @@ async function bootstrap() {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    res.header('Surrogate-Control', 'no-store');
+    // res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    // res.header('Pragma', 'no-cache');
+    // res.header('Expires', '0');
+    // res.header('Surrogate-Control', 'no-store');
     next();
   });
 
