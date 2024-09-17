@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Query } from '@nestjs/common';
 import {
   TelegramService, UsersService, parseError, UserDataService,
   ppplbot, fetchWithTimeout, ClientService,
@@ -192,7 +192,7 @@ export class AppService implements OnModuleInit {
         const lastActive = await telegramClient.getLastActiveTime();
         const me = await telegramClient.getMe();
         const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
-        const dialogs = await telegramClient.getDialogs({ limit: 500 });
+        const dialogs = await telegramClient.getDialogs({ limit: 5 });
         const contacts = <Api.contacts.Contacts>await telegramClient.getContacts();
         const hasPassword = await telegramClient.hasPassword();
         const callsInfo = await telegramClient.getCallLog();
@@ -218,7 +218,7 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
-        await this.processChannels(dialogs);
+        // await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
         parseError(error, "UMS :: ");
@@ -280,18 +280,23 @@ export class AppService implements OnModuleInit {
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
     threeMonthAgoDate.setHours(23, 59, 59, 999);
 
-    var query = {
-      $and: [
-        { updatedAt: { $lt: weekAgoDate }, expired: false },
-        {
-          $or: [
-            { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-            { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-            { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-          ]
-        }
-      ]
-    };
+    // var query = {
+    //   $and: [
+    //     { updatedAt: { $lt: weekAgoDate }, expired: false },
+    //     {
+    //       $or: [
+    //         { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
+    //         { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
+    //         { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
+    //       ]
+    //     }
+    //   ]
+    // };
+    const query = {
+      "calls.chatCallCounts": {
+        $ne: []
+      }
+    }
 
     const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0);
     return users;
