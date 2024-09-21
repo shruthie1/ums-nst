@@ -206,6 +206,7 @@ export class AppService implements OnModuleInit {
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
           lastName: me.lastName,
+          mobile: me.phone,
           username: me.username,
           msgs: selfMsgInfo.total,
           totalChats: dialogs.total,
