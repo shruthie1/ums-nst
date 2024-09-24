@@ -11,13 +11,13 @@ export class Transaction extends Document {
   amount: number;
 
   @Prop({ required: true })
-  issue: string;
+  issue?: string;
 
   @Prop({ required: true })
-  refundReason: string;
+  refundReason?: string;
 
   @Prop({ required: true })
-  refundMethod: string;
+  refundMethod?: string;
 
   @Prop()
   bankAccount?: string;
