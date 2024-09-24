@@ -20,7 +20,6 @@ import { Dialog } from 'telegram/tl/custom/dialog';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction } from './transaction.schema';
-import  * as ShortUniqueId from 'short-uuid';
 
 
 @Injectable()
@@ -637,9 +636,7 @@ export class AppService implements OnModuleInit {
   }
 
   async create(reportData: Partial<Transaction>): Promise<Transaction> {
-    const shortUuid =  ShortUniqueId.generate();
     const report = new this.transactionModel({
-      transactionId: shortUuid,
       ...reportData,
     });
     return await report.save();
