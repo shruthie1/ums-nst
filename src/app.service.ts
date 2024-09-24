@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Query } from '@nestjs/common';
+import { Injectable, OnModuleInit, Query, NotFoundException } from '@nestjs/common';
 import {
   TelegramService, UsersService, parseError, UserDataService,
   ppplbot, fetchWithTimeout, ClientService,
@@ -16,6 +16,12 @@ import * as schedule from 'node-schedule-tz';
 import { TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
+// src/transaction/transaction.service.ts
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Transaction } from './transaction.schema';
+import  * as ShortUniqueId from 'short-uuid';
+
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -23,7 +29,9 @@ export class AppService implements OnModuleInit {
   private joinChannelIntervalId: NodeJS.Timeout;
   private joinChannelMap: Map<string, Channel[]> = new Map();
 
-  constructor(private usersService: UsersService,
+  constructor(
+    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+    private usersService: UsersService,
     private telegramService: TelegramService,
     private userDataService: UserDataService,
     private clientService: ClientService,
@@ -626,5 +634,28 @@ export class AppService implements OnModuleInit {
         await sleep(3000);
       }
     }
+  }
+
+  async create(reportData: Partial<Transaction>): Promise<Transaction> {
+    const shortUuid =  ShortUniqueId.generate();
+    const report = new this.transactionModel({
+      transactionId: shortUuid,
+      ...reportData,
+    });
+    return await report.save();
+  }
+
+  async findAll(): Promise<Transaction[]> {
+    return await this.transactionModel.find().exec();
+  }
+
+  async findOne(transactionId: string): Promise<Transaction> {
+    const transaction = await this.transactionModel.findOne({ transactionId }).exec();
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
+    }
+
+    return transaction;
   }
 }

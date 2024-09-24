@@ -6,9 +6,12 @@ import {
   LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, UpiIdModule,
   UserDataModule, UsersModule, PromoteClientModule
 } from 'commonService';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Transaction, TransactionSchema } from './transaction.schema';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: Transaction.name, schema: TransactionSchema }]),
     BuildModule, UsersModule, TelegramModule,
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,

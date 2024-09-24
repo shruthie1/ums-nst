@@ -4,6 +4,8 @@ import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/
 import { parseError } from 'commonService';
 import { Response } from 'express';
 import { Client } from 'commonService/dist/components/clients/schemas/client.schema';
+import { Transaction } from './transaction.schema';
+import { CreateTransactionDto } from './create-transaction.dto';
 
 @Controller()
 export class AppController {
@@ -235,6 +237,22 @@ export class AppController {
                 }, 20000);
             </script>`;
     res.send(resp);
+  }
+
+  @Post('/transaction')
+  @ApiBody({type: CreateTransactionDto})
+  async create(@Body() reportData: Partial<Transaction>): Promise<Transaction> {
+    return await this.appService.create(reportData);
+  }
+
+  @Get('/transaction')
+  async findAll(): Promise<Transaction[]> {
+    return await this.appService.findAll();
+  }
+
+  @Get('/transaction/:id') // Define a route parameter
+  async findOne(@Param('id') transactionId: string): Promise<Transaction> {
+    return await this.appService.findOne(transactionId);
   }
 
 }
