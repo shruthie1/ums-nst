@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
   ActiveChannelsModule, BuildModule, ChannelsModule, ClientModule,
-  LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, UpiIdModule,
+  LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, TgSignupModule, UpiIdModule,
   UserDataModule, UsersModule
 } from 'commonService';
 
@@ -13,7 +13,7 @@ import {
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
     StatModule, Stat2Module, PromoteStatModule,
-    ChannelsModule],
+    ChannelsModule, TgSignupModule],
   controllers: [AppController],
   providers: [AppService],
 })
