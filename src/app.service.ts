@@ -51,8 +51,11 @@ export class AppService implements OnModuleInit {
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
         await this.clientService.refreshMap();
-        this.processUsers(400, 0);
         await this.statService.deleteAll();
+      })
+
+      schedule.scheduleJob('test4', '0 */4 * * *', 'Asia/Kolkata', async () => {
+        this.processUsers(400, 0);
       })
 
       schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
