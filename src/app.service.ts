@@ -57,7 +57,7 @@ export class AppService implements OnModuleInit {
       schedule.scheduleJob('test4', '0 */4 * * *', 'Asia/Kolkata', async () => {
         this.processUsers(400, 0);
       })
-      
+
       schedule.scheduleJob('test9', '25 16 * * * ', 'Asia/Kolkata', async () => {
         this.promoteClientService.checkPromoteClients()
       })
@@ -461,14 +461,10 @@ export class AppService implements OnModuleInit {
     let profileData = ''
     const userDatas = await this.userDataService.search({ tgId });
     for (const userData of userDatas) {
-      await this.userDataService.update(userData.profile, userData.chatId, {
-        canReply: 0
-      })
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
       for (const profile of profiles) {
-        await fetchWithTimeout(`${profile.repl}/deleteChat/userData.chatId`);
-        await fetchWithTimeout(`${profile.repl}/blockuser/userData.chatId`);
+        await fetchWithTimeout(`${profile.repl}/blockuser/${userData.chatId}`);
       }
       profileData = profileData + " | " + userData.profile;
     }
