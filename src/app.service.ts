@@ -57,15 +57,7 @@ export class AppService implements OnModuleInit {
       schedule.scheduleJob('test4', '0 */4 * * *', 'Asia/Kolkata', async () => {
         this.processUsers(400, 0);
       })
-
-      schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
-        const now = new Date();
-        if (now.getUTCDate() % 3 === 1) {
-          this.leaveChannelsAll()
-        }
-        await this.joinchannelForClients()
-      })
-
+      
       schedule.scheduleJob('test9', '25 16 * * * ', 'Asia/Kolkata', async () => {
         this.promoteClientService.checkPromoteClients()
       })
