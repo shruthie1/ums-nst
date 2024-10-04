@@ -430,20 +430,16 @@ export class AppService implements OnModuleInit {
     let profileData = ''
     const userDatas = await this.userDataService.search({ tgId });
     for (const userData of userDatas) {
-      await this.userDataService.update(userData.profile, userData.chatId, {
-        canReply: 0
-      })
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
       for (const profile of profiles) {
-        await fetchWithTimeout(`${profile.repl}/deleteChat/userData.chatId`);
-        await fetchWithTimeout(`${profile.repl}/blockuser/userData.chatId`);
+        await fetchWithTimeout(`${profile.repl}/blockuser/${userData.chatId}`);
       }
       profileData = profileData + " | " + userData.profile;
     }
     return profileData
   }
-
+  
   async getRequestCall(username: string, chatId: string): Promise<any> {
     const user = (await this.clientService.search({ username: username.toLowerCase() }))[0];
     console.log(`Call Request Recived: ${username} | ${chatId}`)
