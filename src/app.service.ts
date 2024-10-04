@@ -427,7 +427,21 @@ export class AppService implements OnModuleInit {
   }
 
   async blockUserAll(tgId: string) {
-    return await this.userDataService.updateAll(tgId, { canReply: 0, payAmount: 0 })
+    let profileData = ''
+    const userDatas = await this.userDataService.search({ tgId });
+    for (const userData of userDatas) {
+      await this.userDataService.update(userData.profile, userData.chatId, {
+        canReply: 0
+      })
+      const profileRegex = new RegExp(userData.profile, "i")
+      const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
+      for (const profile of profiles) {
+        await fetchWithTimeout(`${profile.repl}/deleteChat/userData.chatId`);
+        await fetchWithTimeout(`${profile.repl}/blockuser/userData.chatId`);
+      }
+      profileData = profileData + " | " + userData.profile;
+    }
+    return profileData
   }
 
   async getRequestCall(username: string, chatId: string): Promise<any> {
