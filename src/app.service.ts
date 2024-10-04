@@ -15,7 +15,7 @@ import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import { TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
-
+import * as schedule from 'node-schedule-tz'
 @Injectable()
 export class AppService implements OnModuleInit {
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
@@ -40,6 +40,14 @@ export class AppService implements OnModuleInit {
   onModuleInit() {
     console.log("App Module initiated !!");
     try {
+      schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
+        const now = new Date();
+        if (now.getUTCDate() % 3 === 1) {
+          this.leaveChannelsAll()
+        }
+        await this.joinchannelForClients()
+      })
+
       // schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
       //   await this.clientService.refreshMap();
       //   this.processUsers(400, 0);
@@ -76,7 +84,6 @@ export class AppService implements OnModuleInit {
       console.log("Some Error: ", error);
     }
   }
-
   async checkPromotions() {
     setInterval(async () => {
       const clients = await this.clientService.findAll();
