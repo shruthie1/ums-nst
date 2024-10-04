@@ -40,7 +40,7 @@ export class AppService implements OnModuleInit {
   onModuleInit() {
     console.log("App Module initiated !!");
     try {
-      schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
+      schedule.scheduleJob('test3', '25 2,9,16 * * * ', 'Asia/Kolkata', async () => {
         const now = new Date();
         if (now.getUTCDate() % 3 === 1) {
           this.leaveChannelsAll()
@@ -369,7 +369,7 @@ export class AppService implements OnModuleInit {
       try {
         let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 });
         await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
-        if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 300) {
+        if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 350) {
           const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
           await fetchWithTimeout(`${(ppplbot())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`)
           this.joinChannelMap.set(document.repl, result);
