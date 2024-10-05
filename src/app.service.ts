@@ -457,9 +457,9 @@ export class AppService implements OnModuleInit {
     this.clientService.refreshMap()
   }
 
-  async blockUserAll(tgId: string) {
+  async blockUserAll(chatId: string) {
     let profileData = ''
-    const userDatas = await this.userDataService.search({ tgId });
+    const userDatas = await this.userDataService.search({ chatId });
     for (const userData of userDatas) {
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
