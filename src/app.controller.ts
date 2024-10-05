@@ -26,6 +26,11 @@ export class AppController {
     return await this.appService.blockUserAll(tgId)
   }
 
+  @Get('unblockUserAll/:tgId')
+  async unblockUserAll(@Param('tgId') tgId: string) {
+    return await this.appService.unblockUserAll(tgId)
+  }
+
   @Get('isRecentUser')
   @ApiOperation({ summary: 'Check if user is recent and return access data' })
   @ApiParam({ name: 'chatId', type: 'string', required: true })

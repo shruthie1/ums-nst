@@ -433,13 +433,33 @@ export class AppService implements OnModuleInit {
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
       for (const profile of profiles) {
-        await fetchWithTimeout(`${profile.repl}/blockuser/${userData.chatId}`);
+        const url =`${profile.repl}/blockuser/${chatId}`;
+        console.log("Executing: ", url)
+        const result = await fetchWithTimeout(url);
+        console.log(result.data)
       }
       profileData = profileData + " | " + userData.profile;
     }
     return profileData
   }
   
+  async unblockUserAll(chatId: string) {
+    let profileData = ''
+    const userDatas = await this.userDataService.search({ chatId });
+    for (const userData of userDatas) {
+      const profileRegex = new RegExp(userData.profile, "i")
+      const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
+      for (const profile of profiles) {
+        const url =`${profile.repl}/unblockuser/${chatId}`;
+        console.log("Executing: ", url)
+        const result = await fetchWithTimeout(url);
+        console.log(result.data)
+      }
+      profileData = profileData + " | " + userData.profile;
+    }
+    return profileData
+  }
+
   async getRequestCall(username: string, chatId: string): Promise<any> {
     const user = (await this.clientService.search({ username: username.toLowerCase() }))[0];
     console.log(`Call Request Recived: ${username} | ${chatId}`)
