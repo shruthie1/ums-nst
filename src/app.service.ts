@@ -54,7 +54,7 @@ export class AppService implements OnModuleInit {
         await this.statService.deleteAll();
       })
 
-      schedule.scheduleJob('test4', '0 */4 * * *', 'Asia/Kolkata', async () => {
+      schedule.scheduleJob('test4', '0 */3 * * *', 'Asia/Kolkata', async () => {
         this.processUsers(400, 0);
       })
 

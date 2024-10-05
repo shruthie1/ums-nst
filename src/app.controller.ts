@@ -3,7 +3,6 @@ import { AppService } from './app.service';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { parseError } from 'commonService';
 import { Response } from 'express';
-import { Client } from 'commonService/dist/components/clients/schemas/client.schema';
 import { Transaction } from './transaction.schema';
 import { CreateTransactionDto } from './create-transaction.dto';
 
