@@ -110,13 +110,13 @@ export class AppController {
 
   @Get('maskedCls')
   @ApiOperation({ summary: 'Cls Data' })
-  async maskedCls(@Query() query: object): Promise<Client[]> {
+  async maskedCls(@Query() query: object): Promise<any[]> {
     return await this.appService.findAllMasked(query);
   }
 
   @Get('portalData')
   @ApiOperation({ summary: 'Cls Data' })
-  async portalData(@Query() query: object): Promise<{ client: Client, upis: object }> {
+  async portalData(@Query() query: object): Promise<{ client: any, upis: object }> {
     return await this.appService.portalData(query);
   }
 
