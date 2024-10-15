@@ -652,7 +652,7 @@ export class AppService implements OnModuleInit {
   }
 
   async findOne(transactionId: string): Promise<Transaction> {
-    const transaction = await this.transactionModel.findOne({ transactionId }).exec();
+    const transaction = await this.transactionModel.findOne({ _id:transactionId }).exec();
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
