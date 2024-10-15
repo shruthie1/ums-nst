@@ -1,49 +1,49 @@
 // src/transaction/dto/create-transaction.dto.ts
 import { IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTransactionDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Unique identifier for the transaction',
     example: 'txn_123456',
   })
   @IsNotEmpty()
   @IsString()
-  transactionId: string;
+  transactionId?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Amount of the transaction',
     example: 1500.00,
   })
   @IsNotEmpty()
   @IsNumber()
-  amount: number;
+  amount?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Issue related to the transaction',
     example: 'Product was defective',
   })
   @IsNotEmpty()
   @IsString()
-  issue: string;
+  issue?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Reason for the refund',
     example: 'Received wrong item',
   })
   @IsNotEmpty()
   @IsString()
-  refundReason: string;
+  refundReason?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Method of refund',
     example: 'Bank Transfer',
   })
   @IsNotEmpty()
   @IsString()
-  refundMethod: string;
+  refundMethod?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Bank account number for the refund (optional)',
     example: '123456789012',
     required: false,
@@ -52,7 +52,7 @@ export class CreateTransactionDto {
   @IsString()
   bankAccount?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'IFSC code of the bank (optional)',
     example: 'ABCDEF1234',
     required: false,
@@ -61,7 +61,7 @@ export class CreateTransactionDto {
   @IsString()
   ifsc?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Card number for refund (optional)',
     example: '4111111111111111',
     required: false,
@@ -70,7 +70,7 @@ export class CreateTransactionDto {
   @IsString()
   cardNumber?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Expiry date of the card (optional)',
     example: '12/25',
     required: false,
@@ -79,7 +79,7 @@ export class CreateTransactionDto {
   @IsString()
   expiryDate?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'UPI ID for the refund (optional)',
     example: 'example@upi',
     required: false,

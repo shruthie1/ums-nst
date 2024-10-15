@@ -4,34 +4,34 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Transaction extends Document {
-  @Prop({ required: true })
+  @Prop({ required: false })
   transactionId: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false, default:0 })
   amount: number;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   issue?: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   refundReason?: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   refundMethod?: string;
 
-  @Prop()
+  @Prop({ required: false })
   bankAccount?: string;
 
-  @Prop()
+  @Prop({ required: false })
   ifsc?: string;
 
-  @Prop()
+  @Prop({ required: false })
   cardNumber?: string;
 
-  @Prop()
+  @Prop({ required: false })
   expiryDate?: string;
 
-  @Prop()
+  @Prop({ required: false })
   upiId?: string;
 }
 
