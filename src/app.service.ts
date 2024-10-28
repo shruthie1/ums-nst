@@ -299,7 +299,7 @@ export class AppService implements OnModuleInit {
   }
 
   async getPaymentStats(chatId: string, profile: string) {
-    const resp = { paid: 0, demoGiven: 0, secondShow: 0, fullShow: 0, latestCallTime: 0 };
+    const resp = { paid: 0, demoGiven: 0, secondShow: 0, fullShow: 0, latestCallTime: 0, videos: [] };
 
     try {
       const query1 = { chatId, profile: { $exists: true, $ne: profile }, payAmount: { $gte: 10 } };
@@ -326,6 +326,7 @@ export class AppService implements OnModuleInit {
           if (doc.callTime > resp.latestCallTime) {
             resp.latestCallTime = doc.callTime
           }
+          resp.videos.push(...doc.videos)
         });
       }
     } catch (error) {
