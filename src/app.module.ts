@@ -4,7 +4,8 @@ import { AppService } from './app.service';
 import {
   ActiveChannelsModule, BuildModule, ChannelsModule, ClientModule,
   LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, UpiIdModule,
-  UserDataModule, UsersModule, PromoteClientModule
+  UserDataModule, UsersModule, PromoteClientModule,
+  TransactionModule
 } from 'commonService';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Transaction, TransactionSchema } from './transaction.schema';
@@ -16,7 +17,7 @@ import { Transaction, TransactionSchema } from './transaction.schema';
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
     StatModule, Stat2Module, PromoteStatModule,
-    ChannelsModule, PromoteClientModule],
+    ChannelsModule, PromoteClientModule,TransactionModule],
   controllers: [AppController],
   providers: [AppService],
 })
