@@ -25,6 +25,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  });
   const config = new DocumentBuilder()
     .setTitle('NestJS and Express API')
     .setDescription('API documentation')
