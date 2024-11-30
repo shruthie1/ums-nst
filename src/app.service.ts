@@ -20,6 +20,7 @@ import { Dialog } from 'telegram/tl/custom/dialog';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction } from './transaction.schema';
+import { shouldMatch } from './utils';
 
 
 @Injectable()
@@ -221,7 +222,7 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
-        // await this.processChannels(dialogs);
+        await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
         parseError(error, "UMS :: ");
@@ -247,7 +248,7 @@ export class AppService implements OnModuleInit {
       .map(chat => {
         const chatEntity = <Api.Channel>chat.entity;
         const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
-        if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50) {
+        if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50 && shouldMatch(chatEntity)) {
           return {
             channelId: chatEntity.id.toString(),
             canSendMsgs: true,
@@ -265,7 +266,9 @@ export class AppService implements OnModuleInit {
       })
       .filter(Boolean);
 
-    this.channelsService.createMultiple(channels)
+    this.channelsService.createMultiple(channels);
+    this.activeChannelsService.createMultiple(channels);
+
   }
 
   async getUser(limit?: number, skip?: number) {
