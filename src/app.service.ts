@@ -62,9 +62,9 @@ export class AppService implements OnModuleInit {
         this.promoteClientService.checkPromoteClients()
       })
 
-      schedule.scheduleJob('test3', ' 50 12 * * * ', 'Asia/Kolkata', async () => {
+      schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
         const now = new Date();
-        if (now.getUTCDate() % 7 === 2) {
+        if (now.getUTCDate() % 7 === 0) {
           await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
           setTimeout(async () => {
             await this.activeChannelsService.resetAvailableMsgs();
@@ -652,7 +652,7 @@ export class AppService implements OnModuleInit {
   }
 
   async findOne(transactionId: string): Promise<Transaction> {
-    const transaction = await this.transactionModel.findOne({ _id: transactionId }).exec();
+    const transaction = await this.transactionModel.findOne({ _id:transactionId }).exec();
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
