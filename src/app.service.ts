@@ -68,9 +68,9 @@ export class AppService implements OnModuleInit {
         if (now.getUTCDate() % 7 === 0) {
           await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
           setTimeout(async () => {
-            await this.activeChannelsService.resetAvailableMsgs();
-            await this.activeChannelsService.updateBannedChannels();
-            await this.activeChannelsService.updateDefaultReactions();
+            // await this.activeChannelsService.resetAvailableMsgs();
+            // await this.activeChannelsService.updateBannedChannels();
+            // await this.activeChannelsService.updateDefaultReactions();
           }, 30000);
         }
 
