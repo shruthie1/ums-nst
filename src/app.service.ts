@@ -522,6 +522,7 @@ export class AppService implements OnModuleInit {
     delete result['session'];
     delete result['mobile'];
     delete result['deployKey'];
+    delete result['promoteMobile'];
     return result
   }
 
