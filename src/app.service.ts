@@ -59,7 +59,7 @@ export class AppService implements OnModuleInit {
         this.processUsers(400, 0);
       })
 
-      schedule.scheduleJob('test9', '25 16 * * * ', 'Asia/Kolkata', async () => {
+      schedule.scheduleJob('test9', '35 16 * * * ', 'Asia/Kolkata', async () => {
         this.promoteClientService.checkPromoteClients()
       })
 
