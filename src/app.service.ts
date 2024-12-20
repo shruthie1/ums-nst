@@ -204,7 +204,7 @@ export class AppService implements OnModuleInit {
           console.log("CallsInfo :: ", callsInfo.chatCallCounts)
         }
 
-        const result = await this.usersService.update(user.tgId, {
+        const result = await this.usersService.updateByFilter({ $or: [{ tgId: user.tgId }, { mobile: me.phone }] }, {
           contacts: contacts.savedCount,
           calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
           firstName: me.firstName,
