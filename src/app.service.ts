@@ -283,7 +283,7 @@ export class AppService implements OnModuleInit {
     monthAgoDate.setHours(23, 59, 59, 999);
 
     var threeMonthAgoDate = new Date(currentDate);
-    threeMonthAgoDate.setDate(currentDate.getDate() - 90);
+    threeMonthAgoDate.setDate(currentDate.getDate() - 80);
     threeMonthAgoDate.setHours(23, 59, 59, 999);
 
     var query = {
