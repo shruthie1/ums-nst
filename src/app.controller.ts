@@ -107,7 +107,7 @@ export class AppController {
   @Get('refreshmap')
   @ApiOperation({ summary: 'refreshmap for Clients' })
   async refreshmap(): Promise<void> {
-    return this.appService.refreshmap();
+    return await this.appService.refreshmap();
   }
 
 
