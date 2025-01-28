@@ -456,8 +456,10 @@ export class AppService implements OnModuleInit {
     }
   }
 
-  refreshmap() {
-    this.clientService.refreshMap()
+  async refreshmap() {
+    await this.clientService.refreshMap()
+    await this.clientService.checkNpoint();
+
   }
 
   async blockUserAll(chatId: string) {
