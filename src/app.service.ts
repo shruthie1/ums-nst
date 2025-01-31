@@ -300,6 +300,8 @@ export class AppService implements OnModuleInit {
 
   async getPaymentStats(chatId: string, profile: string) {
     const resp = { paid: 0, demoGiven: 0, secondShow: 0, fullShow: 0, latestCallTime: 0, videos: [] };
+    const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+    const fiveDaysAgo = Date.now() - (5 * 24 * 60 * 60 * 1000);
 
     try {
       const query1 = { chatId, profile: { $exists: true, $ne: profile }, payAmount: { $gte: 10 } };
@@ -313,26 +315,32 @@ export class AppService implements OnModuleInit {
       }
 
       if (document2.length > 0) {
-        document2.forEach(doc => {
-          if (doc.demoGiven) {
-            resp.demoGiven++;
+        for (const doc of document2) {
+          if (doc.callTime > threeDaysAgo) {
+            if (doc.demoGiven) {
+              resp.demoGiven++;
+            }
+            if (doc.secondShow) {
+              resp.secondShow++;
+            }
+            if (doc.fullShow) {
+              resp.fullShow++;
+            }
+            if (doc.callTime > resp.latestCallTime) {
+              resp.latestCallTime = doc.callTime;
+            }
+            resp.videos.push(...doc.videos);
+          } else {
+            if (doc.lastMsgTimeStamp > fiveDaysAgo) {
+              await this.userDataService.update(doc.profile, doc.chatId, { payAmount: 0, videos: [], demoGiven: false, secondShow: false, highestPayAmount: 0, });
+            }
           }
-          if (doc.secondShow) {
-            resp.secondShow++;
-          }
-          if (doc.fullShow) {
-            resp.fullShow++;
-          }
-          if (doc.callTime > resp.latestCallTime) {
-            resp.latestCallTime = doc.callTime
-          }
-          resp.videos.push(...doc.videos)
-        });
+        }
       }
     } catch (error) {
       parseError(error);
     }
-    console.log(resp)
+    console.log(resp);
     return resp;
   }
 
@@ -435,7 +443,7 @@ export class AppService implements OnModuleInit {
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
       for (const profile of profiles) {
-        const url =`${profile.repl}/blockuser/${chatId}`;
+        const url = `${profile.repl}/blockuser/${chatId}`;
         console.log("Executing: ", url)
         const result = await fetchWithTimeout(url);
         console.log(result.data)
@@ -444,7 +452,7 @@ export class AppService implements OnModuleInit {
     }
     return profileData
   }
-  
+
   async unblockUserAll(chatId: string) {
     let profileData = ''
     const userDatas = await this.userDataService.search({ chatId });
@@ -452,7 +460,7 @@ export class AppService implements OnModuleInit {
       const profileRegex = new RegExp(userData.profile, "i")
       const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
       for (const profile of profiles) {
-        const url =`${profile.repl}/unblockuser/${chatId}`;
+        const url = `${profile.repl}/unblockuser/${chatId}`;
         console.log("Executing: ", url)
         const result = await fetchWithTimeout(url);
         console.log(result.data)
@@ -602,13 +610,13 @@ export class AppService implements OnModuleInit {
     return (
       `<div>
         <div style="display: flex; margin-bottom: 60px">
-          <div style="flex: 1;">${reply}</div>
-          <div style="flex: 1; ">${reply2}</div>
+          <div style="flex: 1;">${reply} </div>
+      < div style = "flex: 1; " > ${reply2} </div>
         </div>
-        <div style="display: flex;">
-          <div style="flex: 1; " >${reply3}</div>
-        </div>
-      </div>`
+        < div style = "display: flex;" >
+          <div style="flex: 1; " > ${reply3} </div>
+            </div>
+            </div>`
     );
   }
 
