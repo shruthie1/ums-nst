@@ -45,6 +45,7 @@ export class AppService implements OnModuleInit {
         if (now.getUTCDate() % 3 === 1) {
           this.leaveChannelsAll()
         }
+        console.log("Executing joinchannelForClients")
         await this.joinchannelForClients()
       })
 
