@@ -41,7 +41,7 @@ export class AppService implements OnModuleInit {
     console.log("App Module initiated !!");
     try {
       schedule.scheduleJob('test3', '25 2,9,16 * * * ', 'Asia/Kolkata', async () => {
-        await fetchWithTimeout(`${(ppplbot())}&text=ExecutingjoinchannelForClients`)
+        await fetchWithTimeout(`${(ppplbot())}&text=ExecutingjoinchannelForClients${process.env.clientId}`)
         const now = new Date();
         if (now.getUTCDate() % 3 === 1) {
           this.leaveChannelsAll()
