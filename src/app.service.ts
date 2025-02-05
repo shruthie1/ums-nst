@@ -381,7 +381,7 @@ export class AppService implements OnModuleInit {
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
       try {
-        let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 });
+        let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 },1);
         await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
         if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 350) {
           const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
