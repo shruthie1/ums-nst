@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
@@ -9,11 +9,11 @@ import {
 
 @Module({
   imports: [
-    BuildModule, UsersModule, TelegramModule,
-    UserDataModule, ClientModule,
-    ActiveChannelsModule, UpiIdModule,
-    StatModule, Stat2Module, PromoteStatModule,
-    ChannelsModule, TgSignupModule],
+    forwardRef(() => BuildModule), forwardRef(() => UsersModule), forwardRef(() => TelegramModule),
+    forwardRef(() => UserDataModule), forwardRef(() => ClientModule),
+    forwardRef(() => ActiveChannelsModule), forwardRef(() => UpiIdModule),
+    forwardRef(() => StatModule), forwardRef(() => Stat2Module), forwardRef(() => PromoteStatModule),
+    forwardRef(() => ChannelsModule), forwardRef(() => TgSignupModule)],
   controllers: [AppController],
   providers: [AppService],
 })
