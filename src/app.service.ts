@@ -111,6 +111,7 @@ export class AppService implements OnModuleInit {
         } else {
           console.log(client.clientId, ": ALL Good!! ---", Math.floor((Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60)));
         }
+        await sleep(1000)
       }
     }, 240000)
   }
@@ -144,7 +145,7 @@ export class AppService implements OnModuleInit {
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('1')) {
         await fetchWithTimeout(`${client.repl}/exit`);
-        await sleep(40000);
+        await sleep(10000);
       }
     }
   }
@@ -154,7 +155,7 @@ export class AppService implements OnModuleInit {
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('2')) {
         await fetchWithTimeout(`${client.repl}/exit`);
-        await sleep(40000);
+        await sleep(10000);
       }
     }
   }
@@ -164,7 +165,7 @@ export class AppService implements OnModuleInit {
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('1')) {
         await fetchWithTimeout(`${client.repl}/exec/refresh`);
-        await sleep(40000);
+        await sleep(10000);
       }
     }
   }
@@ -174,7 +175,7 @@ export class AppService implements OnModuleInit {
     for (const client of clients) {
       if (client.clientId.toLowerCase().includes('2')) {
         await fetchWithTimeout(`${client.repl}/exec/refresh`);
-        await sleep(40000);
+        await sleep(10000);
       }
     }
   }
@@ -182,7 +183,7 @@ export class AppService implements OnModuleInit {
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
     console.log(`Initiated Users Update: ${users.length}`);
-    this.updateUsers(users);
+    await this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
   async updateUsers(users: User[]) {
@@ -472,8 +473,9 @@ export class AppService implements OnModuleInit {
         await fetchWithTimeout(`${profile.repl}/blockuser/${userData.chatId}`);
       }
       profileData = profileData + " | " + userData.profile;
+      await sleep(1000);
     }
-    return profileData
+    return profileData;
   }
 
   async getRequestCall(username: string, chatId: string): Promise<any> {
