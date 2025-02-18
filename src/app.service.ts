@@ -357,13 +357,7 @@ export class AppService implements OnModuleInit {
     const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
     console.log(decodeURIComponent(encodedMessage));
     const url = `${ppplbot(chatId, token)}&text=${encodedMessage}`;
-
-    try {
-      await fetchWithTimeout(url, {}, 0);
-      return "sent";
-    } catch (e) {
-      parseError(e);
-    }
+    return await fetchWithTimeout(url, {}, 0);
   }
 
   async findAllMasked(query: object) {
@@ -381,7 +375,7 @@ export class AppService implements OnModuleInit {
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
       try {
-        let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 },1);
+        let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 }, 1);
         await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
         if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 350) {
           const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
