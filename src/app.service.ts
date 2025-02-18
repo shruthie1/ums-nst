@@ -357,7 +357,7 @@ export class AppService implements OnModuleInit {
     const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
     console.log(decodeURIComponent(encodedMessage));
     const url = `${ppplbot(chatId, token)}&text=${encodedMessage}`;
-    return await fetchWithTimeout(url, {}, 0);
+    return (await fetchWithTimeout(url, {}, 0)).data;
   }
 
   async findAllMasked(query: object) {
