@@ -638,6 +638,7 @@ export class AppService implements OnModuleInit {
   }
 
   async checkAndRefresh() {
+    console.log("checkAndRefresh")
     if (Date.now() > this.refresTime) {
       this.refresTime = Date.now() + (5 * 60 * 1000);
       const clients = await this.clientService.findAll()
