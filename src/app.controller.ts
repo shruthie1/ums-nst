@@ -224,7 +224,7 @@ export class AppController {
   @ApiResponse({ status: 200, description: 'Successful operation' })
   async getData(@Res() res: Response): Promise<void> {
     console.log("refreshing data");
-    this.appService.checkAndRefresh();
+    // this.appService.checkAndRefresh();
 
     res.setHeader('Content-Type', 'text/html');
     let resp = '<html><head></head><body>';
