@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Param, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { parseError } from 'commonService';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { existsSync, mkdirSync, promises as fs } from 'fs';
 import { join } from 'path';
 import { diskStorage, File as MulterFile } from 'multer';
+import { parseError } from 'common-tg-service';
 
 @Controller()
 export class AppController {

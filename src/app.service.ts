@@ -1,21 +1,18 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import {
-  TelegramService, UsersService, parseError, UserDataService,
-  ppplbot, fetchWithTimeout, ClientService,
-  sleep, ActiveChannelsService, UpiIdService,
-  StatService,
-  PromoteStatService,
-  Stat2Service,
-  ChannelsService
-} from 'commonService';
-import { CreateChannelDto } from 'commonService/dist/components/channels/dto/create-channel.dto';
-import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
-import TelegramManager from 'commonService/dist/components/Telegram/TelegramManager';
-import { User } from 'commonService/dist/components/users/schemas/user.schema';
-import { TotalList } from 'telegram/Helpers';
+import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
 import * as schedule from 'node-schedule-tz'
+import {
+  UsersService,
+  TelegramService, UserDataService,
+  ClientService, ActiveChannelsService,
+  UpiIdService, StatService, Stat2Service,
+  PromoteStatService, ChannelsService,
+  fetchWithTimeout, ppplbot, parseError,
+  User, TelegramManager, CreateChannelDto,
+  Channel
+} from 'common-tg-service';
 @Injectable()
 export class AppService implements OnModuleInit {
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();

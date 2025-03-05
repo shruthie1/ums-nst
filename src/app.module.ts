@@ -2,10 +2,12 @@ import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/comm
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
-  ActiveChannelsModule, BuildModule, ChannelsModule, ClientModule,
-  LoggerMiddleware, PromoteStatModule, Stat2Module, StatModule, TelegramModule, TgSignupModule, UpiIdModule,
-  UserDataModule, UsersModule
-} from 'commonService';
+  BuildModule, UsersModule, TelegramModule,
+  UserDataModule, ClientModule, ActiveChannelsModule,
+  UpiIdModule, StatModule, Stat2Module, PromoteStatModule,
+  ChannelsModule, TgSignupModule, LoggerMiddleware
+} from 'common-tg-service';
+
 
 @Module({
   imports: [
