@@ -1,19 +1,6 @@
 import { Injectable, OnModuleInit, Query, NotFoundException } from '@nestjs/common';
-import {
-  TelegramService, UsersService, parseError, UserDataService,
-  ppplbot, fetchWithTimeout, ClientService,
-  sleep, ActiveChannelsService, UpiIdService,
-  StatService,
-  PromoteStatService,
-  Stat2Service,
-  ChannelsService,
-  PromoteClientService
-} from 'commonService';
-import { Channel } from 'commonService/dist/components/channels/schemas/channel.schema';
-import TelegramManager from 'commonService/dist/components/Telegram/TelegramManager';
-import { User } from 'commonService/dist/components/users/schemas/user.schema';
 import * as schedule from 'node-schedule-tz';
-import { TotalList } from 'telegram/Helpers';
+import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
 // src/transaction/transaction.service.ts
@@ -21,6 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction } from './transaction.schema';
 import { shouldMatch } from './utils';
+import {
+  UsersService, TelegramService, UserDataService,
+  ClientService, ActiveChannelsService, UpiIdService,
+  StatService, Stat2Service, PromoteStatService,
+  ChannelsService, PromoteClientService, fetchWithTimeout,
+  ppplbot, parseError, User, TelegramManager, Channel
+} from 'common-tg-service';
 
 
 @Injectable()
@@ -661,7 +655,7 @@ export class AppService implements OnModuleInit {
   }
 
   async findOne(transactionId: string): Promise<Transaction> {
-    const transaction = await this.transactionModel.findOne({ _id:transactionId }).exec();
+    const transaction = await this.transactionModel.findOne({ _id: transactionId }).exec();
 
     if (!transaction) {
       throw new NotFoundException(`Transaction with ID ${transactionId} not found`);

@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { parseError } from 'commonService';
 import { Response } from 'express';
 import { Transaction } from './transaction.schema';
 import { CreateTransactionDto } from './create-transaction.dto';
+import { parseError } from 'common-tg-service';
 
 @Controller()
 export class AppController {
