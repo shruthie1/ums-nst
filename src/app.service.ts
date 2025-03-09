@@ -13,9 +13,9 @@ import {
   ClientService, ActiveChannelsService, UpiIdService,
   StatService, Stat2Service, PromoteStatService,
   ChannelsService, PromoteClientService, fetchWithTimeout,
-  ppplbot, parseError, User, TelegramManager, Channel
+  ppplbot, parseError, User, TelegramManager, Channel,
+  connectionManager
 } from 'common-tg-service';
-import connectionManager from 'common-tg-service/dist/components/Telegram/utils/connection-manager';
 
 
 @Injectable()
