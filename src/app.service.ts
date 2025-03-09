@@ -11,9 +11,8 @@ import {
   PromoteStatService, ChannelsService,
   fetchWithTimeout, ppplbot, parseError,
   User, TelegramManager, CreateChannelDto,
-  Channel
+  Channel, connectionManager
 } from 'common-tg-service';
-import connectionManager from 'common-tg-service/dist/components/Telegram/utils/connection-manager';
 @Injectable()
 export class AppService implements OnModuleInit {
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
