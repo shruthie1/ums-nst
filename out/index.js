@@ -21,17 +21,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
 const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
-const commonService_1 = __webpack_require__(/*! commonService */ "commonService");
-const platform_express_1 = __webpack_require__(/*! @nestjs/platform-express */ "@nestjs/platform-express");
-const fs_1 = __webpack_require__(/*! fs */ "fs");
-const path_1 = __webpack_require__(/*! path */ "path");
-const multer_1 = __webpack_require__(/*! multer */ "multer");
+const common_tg_service_1 = __webpack_require__(/*! common-tg-service */ "common-tg-service");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -72,7 +67,7 @@ let AppController = class AppController {
             }
         }
         catch (e) {
-            (0, commonService_1.parseError)(e);
+            (0, common_tg_service_1.parseError)(e);
         }
     }
     async sendToAll(query) {
@@ -82,7 +77,7 @@ let AppController = class AppController {
             return `Send ${query}`;
         }
         catch (e) {
-            (0, commonService_1.parseError)(e);
+            (0, common_tg_service_1.parseError)(e);
             throw e;
         }
     }
@@ -154,23 +149,6 @@ let AppController = class AppController {
                 }, 20000);
             </script>`;
         res.send(resp);
-    }
-    async uploadFileAndUpdate(file) {
-        try {
-            const targetDir = (0, path_1.join)(__dirname, '..', 'node_modules', 'commonService');
-            const filePath = (0, path_1.join)(targetDir, 'index.js');
-            if (!(0, fs_1.existsSync)(targetDir)) {
-                (0, fs_1.mkdirSync)(targetDir, { recursive: true });
-            }
-            const fileBuffer = await fs_1.promises.readFile(file.path);
-            await fs_1.promises.writeFile(filePath, fileBuffer);
-            console.log('commonService/index.js updated successfully.');
-            return { message: 'commonService/index.js updated successfully' };
-        }
-        catch (error) {
-            console.error('Failed to update commonService/index.js:', error);
-            throw error;
-        }
     }
 };
 exports.AppController = AppController;
@@ -427,42 +405,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getData", null);
-__decorate([
-    (0, common_1.Post)('updateCommonService'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
-        storage: (0, multer_1.diskStorage)({
-            destination: (req, file, cb) => {
-                try {
-                    const folderPath = (0, path_1.join)(__dirname, '..', 'uploads');
-                    if (!(0, fs_1.existsSync)(folderPath)) {
-                        (0, fs_1.mkdirSync)(folderPath, { recursive: true });
-                    }
-                    cb(null, folderPath);
-                }
-                catch (error) {
-                    cb(error, null);
-                }
-            },
-            filename: (req, file, cb) => {
-                cb(null, 'index.js');
-            },
-        }),
-    })),
-    (0, swagger_1.ApiOperation)({ summary: 'Upload a file to update commonService index.js' }),
-    (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiBody)({
-        schema: {
-            type: 'object',
-            properties: {
-                file: { type: 'string', format: 'binary' },
-            },
-        },
-    }),
-    __param(0, (0, common_1.UploadedFile)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof multer_1.File !== "undefined" && multer_1.File) === "function" ? _a : Object]),
-    __metadata("design:returntype", Promise)
-], AppController.prototype, "uploadFileAndUpdate", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])
@@ -489,21 +431,21 @@ exports.AppModule = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const app_controller_1 = __webpack_require__(/*! ./app.controller */ "./src/app.controller.ts");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./src/app.service.ts");
-const commonService_1 = __webpack_require__(/*! commonService */ "commonService");
+const common_tg_service_1 = __webpack_require__(/*! common-tg-service */ "common-tg-service");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(commonService_1.LoggerMiddleware).forRoutes('*');
+        consumer.apply(common_tg_service_1.LoggerMiddleware).forRoutes('*');
     }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            (0, common_1.forwardRef)(() => commonService_1.BuildModule), (0, common_1.forwardRef)(() => commonService_1.UsersModule), (0, common_1.forwardRef)(() => commonService_1.TelegramModule),
-            (0, common_1.forwardRef)(() => commonService_1.UserDataModule), (0, common_1.forwardRef)(() => commonService_1.ClientModule),
-            (0, common_1.forwardRef)(() => commonService_1.ActiveChannelsModule), (0, common_1.forwardRef)(() => commonService_1.UpiIdModule),
-            (0, common_1.forwardRef)(() => commonService_1.StatModule), (0, common_1.forwardRef)(() => commonService_1.Stat2Module), (0, common_1.forwardRef)(() => commonService_1.PromoteStatModule),
-            (0, common_1.forwardRef)(() => commonService_1.ChannelsModule), (0, common_1.forwardRef)(() => commonService_1.TgSignupModule)
+            (0, common_1.forwardRef)(() => common_tg_service_1.BuildModule), (0, common_1.forwardRef)(() => common_tg_service_1.UsersModule), (0, common_1.forwardRef)(() => common_tg_service_1.TelegramModule),
+            (0, common_1.forwardRef)(() => common_tg_service_1.UserDataModule), (0, common_1.forwardRef)(() => common_tg_service_1.ClientModule),
+            (0, common_1.forwardRef)(() => common_tg_service_1.ActiveChannelsModule), (0, common_1.forwardRef)(() => common_tg_service_1.UpiIdModule),
+            (0, common_1.forwardRef)(() => common_tg_service_1.StatModule), (0, common_1.forwardRef)(() => common_tg_service_1.Stat2Module), (0, common_1.forwardRef)(() => common_tg_service_1.PromoteStatModule),
+            (0, common_1.forwardRef)(() => common_tg_service_1.ChannelsModule), (0, common_1.forwardRef)(() => common_tg_service_1.TgSignupModule)
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
@@ -532,9 +474,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppService = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
-const commonService_1 = __webpack_require__(/*! commonService */ "commonService");
+const Helpers_1 = __webpack_require__(/*! telegram/Helpers */ "telegram/Helpers");
 const tl_1 = __webpack_require__(/*! telegram/tl */ "telegram/tl");
 const schedule = __webpack_require__(/*! node-schedule-tz */ "node-schedule-tz");
+const common_tg_service_1 = __webpack_require__(/*! common-tg-service */ "common-tg-service");
+const connection_manager_1 = __webpack_require__(/*! common-tg-service/dist/components/Telegram/utils/connection-manager */ "common-tg-service/dist/components/Telegram/utils/connection-manager");
 let AppService = class AppService {
     constructor(usersService, telegramService, userDataService, clientService, activeChannelsService, upiIdService, statService, stat2Service, promoteStatService, channelsService) {
         this.usersService = usersService;
@@ -556,7 +500,7 @@ let AppService = class AppService {
         console.log("App Module initiated !!");
         try {
             schedule.scheduleJob('test3', '25 2,9,16 * * * ', 'Asia/Kolkata', async () => {
-                await (0, commonService_1.fetchWithTimeout)(`${((0, commonService_1.ppplbot)())}&text=ExecutingjoinchannelForClients-${process.env.clientId}`);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${((0, common_tg_service_1.ppplbot)())}&text=ExecutingjoinchannelForClients-${process.env.clientId}`);
                 const now = new Date();
                 if (now.getUTCDate() % 3 === 1) {
                     this.leaveChannelsAll();
@@ -565,7 +509,6 @@ let AppService = class AppService {
                     await this.joinchannelForClients();
                 }
             });
-            this.checkPromotions();
             console.log("Added All Cron Jobs");
         }
         catch (error) {
@@ -579,11 +522,11 @@ let AppService = class AppService {
                 const userPromoteStats = await this.promoteStatService.findByClient(client.clientId);
                 if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 6) {
                     try {
-                        await (0, commonService_1.fetchWithTimeout)(`${client.repl}/promote`, { timeout: 120000 });
+                        await (0, common_tg_service_1.fetchWithTimeout)(`${client.repl}/promote`, { timeout: 120000 });
                         console.log(client.clientId, ": Promote Triggered!!");
                     }
                     catch (error) {
-                        (0, commonService_1.parseError)(error, "Promotion Check Err");
+                        (0, common_tg_service_1.parseError)(error, "Promotion Check Err");
                     }
                 }
                 else {
@@ -608,16 +551,16 @@ let AppService = class AppService {
         for (const client of clients) {
             const url = `${client.repl}/${endpoint}`;
             console.log("Trying : ", url);
-            (0, commonService_1.fetchWithTimeout)(url);
-            await (0, commonService_1.sleep)(2000);
+            (0, common_tg_service_1.fetchWithTimeout)(url);
+            await (0, Helpers_1.sleep)(2000);
         }
     }
     async exitPrimary() {
         const clients = await this.clientService.findAll();
         for (const client of clients) {
             if (client.clientId.toLowerCase().includes('1')) {
-                await (0, commonService_1.fetchWithTimeout)(`${client.repl}/exit`);
-                await (0, commonService_1.sleep)(40000);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${client.repl}/exit`);
+                await (0, Helpers_1.sleep)(40000);
             }
         }
     }
@@ -625,8 +568,8 @@ let AppService = class AppService {
         const clients = await this.clientService.findAll();
         for (const client of clients) {
             if (client.clientId.toLowerCase().includes('2')) {
-                await (0, commonService_1.fetchWithTimeout)(`${client.repl}/exit`);
-                await (0, commonService_1.sleep)(40000);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${client.repl}/exit`);
+                await (0, Helpers_1.sleep)(40000);
             }
         }
     }
@@ -634,8 +577,8 @@ let AppService = class AppService {
         const clients = await this.clientService.findAll();
         for (const client of clients) {
             if (client.clientId.toLowerCase().includes('1')) {
-                await (0, commonService_1.fetchWithTimeout)(`${client.repl}/exec/refresh`);
-                await (0, commonService_1.sleep)(40000);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${client.repl}/exec/refresh`);
+                await (0, Helpers_1.sleep)(40000);
             }
         }
     }
@@ -643,8 +586,8 @@ let AppService = class AppService {
         const clients = await this.clientService.findAll();
         for (const client of clients) {
             if (client.clientId.toLowerCase().includes('2')) {
-                await (0, commonService_1.fetchWithTimeout)(`${client.repl}/exec/refresh`);
-                await (0, commonService_1.sleep)(40000);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${client.repl}/exec/refresh`);
+                await (0, Helpers_1.sleep)(40000);
             }
         }
     }
@@ -656,7 +599,7 @@ let AppService = class AppService {
     async updateUsers(users) {
         for (const user of users) {
             try {
-                const telegramClient = await this.telegramService.createClient(user.mobile, false, false);
+                const telegramClient = await connection_manager_1.default.getClient(user.mobile, { autoDisconnect: false, handler: false });
                 const lastActive = await telegramClient.getLastActiveTime();
                 const me = await telegramClient.getMe();
                 const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
@@ -672,10 +615,10 @@ let AppService = class AppService {
                     lastActive, tgId: me.id.toString(),
                     recentUsers
                 });
-                await this.telegramService.deleteClient(user.mobile);
+                await connection_manager_1.default.unregisterClient(user.mobile);
             }
             catch (error) {
-                (0, commonService_1.parseError)(error, "UMS :: ");
+                (0, common_tg_service_1.parseError)(error, "UMS :: ");
             }
         }
     }
@@ -727,7 +670,7 @@ let AppService = class AppService {
                 return recentUsers;
             }
             catch (error) {
-                (0, commonService_1.parseError)(error);
+                (0, common_tg_service_1.parseError)(error);
             }
         }
     }
@@ -810,7 +753,7 @@ let AppService = class AppService {
             }
         }
         catch (error) {
-            (0, commonService_1.parseError)(error);
+            (0, common_tg_service_1.parseError)(error);
         }
         console.log(resp);
         return resp;
@@ -826,14 +769,8 @@ let AppService = class AppService {
         }
         const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
         console.log(decodeURIComponent(encodedMessage));
-        const url = `${(0, commonService_1.ppplbot)(chatId, token)}&text=${encodedMessage}`;
-        try {
-            await (0, commonService_1.fetchWithTimeout)(url, {}, 0);
-            return "sent";
-        }
-        catch (e) {
-            (0, commonService_1.parseError)(e);
-        }
+        const url = `${(0, common_tg_service_1.ppplbot)(chatId, token)}&text=${encodedMessage}`;
+        return (await (0, common_tg_service_1.fetchWithTimeout)(url, {}, 0))?.data;
     }
     async findAllMasked(query) {
         return await this.clientService.findAllMasked(query);
@@ -845,21 +782,21 @@ let AppService = class AppService {
     }
     async joinchannelForClients() {
         console.log("Joining Channel Started");
-        await this.telegramService.disconnectAll();
-        await (0, commonService_1.sleep)(2000);
+        await connection_manager_1.default.disconnectAll();
+        await (0, Helpers_1.sleep)(2000);
         const clients = await this.clientService.findAll();
         clients.map(async (document) => {
             try {
-                let resp = await (0, commonService_1.fetchWithTimeout)(`${document.repl}/channelinfo`, { timeout: 200000 }, 1);
-                await (0, commonService_1.fetchWithTimeout)(`${((0, commonService_1.ppplbot)())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`);
+                let resp = await (0, common_tg_service_1.fetchWithTimeout)(`${document.repl}/channelinfo`, { timeout: 200000 }, 1);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${((0, common_tg_service_1.ppplbot)())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`);
                 if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 350) {
                     const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
-                    await (0, commonService_1.fetchWithTimeout)(`${((0, commonService_1.ppplbot)())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`);
+                    await (0, common_tg_service_1.fetchWithTimeout)(`${((0, common_tg_service_1.ppplbot)())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`);
                     this.joinChannelMap.set(document.repl, result);
                 }
             }
             catch (error) {
-                (0, commonService_1.parseError)(error);
+                (0, common_tg_service_1.parseError)(error);
             }
         });
         this.joinChannelQueue();
@@ -878,11 +815,11 @@ let AppService = class AppService {
                         console.log(url, " Pending Channels :", channels.length);
                         this.joinChannelMap.set(url, channels);
                         try {
-                            await (0, commonService_1.fetchWithTimeout)(`${url}/joinchannel?username=${channel.username}`);
+                            await (0, common_tg_service_1.fetchWithTimeout)(`${url}/joinchannel?username=${channel.username}`);
                             console.log(url, " Trying to join :", channel.username);
                         }
                         catch (error) {
-                            (0, commonService_1.parseError)(error, "Outer Err: ");
+                            (0, common_tg_service_1.parseError)(error, "Outer Err: ");
                         }
                     }
                     else {
@@ -916,7 +853,7 @@ let AppService = class AppService {
             for (const profile of profiles) {
                 const url = `${profile.repl}/blockuser/${chatId}`;
                 console.log("Executing: ", url);
-                const result = await (0, commonService_1.fetchWithTimeout)(url);
+                const result = await (0, common_tg_service_1.fetchWithTimeout)(url);
                 console.log(result.data);
             }
             profileData = profileData + " | " + userData.profile;
@@ -932,7 +869,7 @@ let AppService = class AppService {
             for (const profile of profiles) {
                 const url = `${profile.repl}/unblockuser/${chatId}`;
                 console.log("Executing: ", url);
-                const result = await (0, commonService_1.fetchWithTimeout)(url);
+                const result = await (0, common_tg_service_1.fetchWithTimeout)(url);
                 console.log(result.data);
             }
             profileData = profileData + " | " + userData.profile;
@@ -949,7 +886,7 @@ let AppService = class AppService {
                 headers: { 'Content-Type': 'application/json' },
                 data: JSON.stringify(payload),
             };
-            const result = await (0, commonService_1.fetchWithTimeout)("https://arpithared.onrender.com/events/schedule", options, 3);
+            const result = await (0, common_tg_service_1.fetchWithTimeout)("https://arpithared.onrender.com/events/schedule", options, 3);
             console.log(result?.data);
         }
     }
@@ -1079,8 +1016,8 @@ let AppService = class AppService {
             this.refresTime = Date.now() + (5 * 60 * 1000);
             const clients = await this.clientService.findAll();
             for (const value of clients) {
-                await (0, commonService_1.fetchWithTimeout)(`${value.repl}/markasread`);
-                await (0, commonService_1.sleep)(3000);
+                await (0, common_tg_service_1.fetchWithTimeout)(`${value.repl}/markasread`);
+                await (0, Helpers_1.sleep)(3000);
             }
         }
     }
@@ -1088,16 +1025,16 @@ let AppService = class AppService {
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [commonService_1.UsersService,
-        commonService_1.TelegramService,
-        commonService_1.UserDataService,
-        commonService_1.ClientService,
-        commonService_1.ActiveChannelsService,
-        commonService_1.UpiIdService,
-        commonService_1.StatService,
-        commonService_1.Stat2Service,
-        commonService_1.PromoteStatService,
-        commonService_1.ChannelsService])
+    __metadata("design:paramtypes", [common_tg_service_1.UsersService,
+        common_tg_service_1.TelegramService,
+        common_tg_service_1.UserDataService,
+        common_tg_service_1.ClientService,
+        common_tg_service_1.ActiveChannelsService,
+        common_tg_service_1.UpiIdService,
+        common_tg_service_1.StatService,
+        common_tg_service_1.Stat2Service,
+        common_tg_service_1.PromoteStatService,
+        common_tg_service_1.ChannelsService])
 ], AppService);
 
 
@@ -1123,16 +1060,6 @@ module.exports = require("@nestjs/core");
 
 /***/ }),
 
-/***/ "@nestjs/platform-express":
-/*!*******************************************!*\
-  !*** external "@nestjs/platform-express" ***!
-  \*******************************************/
-/***/ ((module) => {
-
-module.exports = require("@nestjs/platform-express");
-
-/***/ }),
-
 /***/ "@nestjs/swagger":
 /*!**********************************!*\
   !*** external "@nestjs/swagger" ***!
@@ -1143,13 +1070,23 @@ module.exports = require("@nestjs/swagger");
 
 /***/ }),
 
-/***/ "commonService":
-/*!********************************!*\
-  !*** external "commonService" ***!
-  \********************************/
+/***/ "common-tg-service":
+/*!************************************!*\
+  !*** external "common-tg-service" ***!
+  \************************************/
 /***/ ((module) => {
 
-module.exports = require("commonService");
+module.exports = require("common-tg-service");
+
+/***/ }),
+
+/***/ "common-tg-service/dist/components/Telegram/utils/connection-manager":
+/*!**************************************************************************************!*\
+  !*** external "common-tg-service/dist/components/Telegram/utils/connection-manager" ***!
+  \**************************************************************************************/
+/***/ ((module) => {
+
+module.exports = require("common-tg-service/dist/components/Telegram/utils/connection-manager");
 
 /***/ }),
 
@@ -1163,16 +1100,6 @@ module.exports = require("mongoose");
 
 /***/ }),
 
-/***/ "multer":
-/*!*************************!*\
-  !*** external "multer" ***!
-  \*************************/
-/***/ ((module) => {
-
-module.exports = require("multer");
-
-/***/ }),
-
 /***/ "node-schedule-tz":
 /*!***********************************!*\
   !*** external "node-schedule-tz" ***!
@@ -1183,6 +1110,16 @@ module.exports = require("node-schedule-tz");
 
 /***/ }),
 
+/***/ "telegram/Helpers":
+/*!***********************************!*\
+  !*** external "telegram/Helpers" ***!
+  \***********************************/
+/***/ ((module) => {
+
+module.exports = require("telegram/Helpers");
+
+/***/ }),
+
 /***/ "telegram/tl":
 /*!******************************!*\
   !*** external "telegram/tl" ***!
@@ -1190,26 +1127,6 @@ module.exports = require("node-schedule-tz");
 /***/ ((module) => {
 
 module.exports = require("telegram/tl");
-
-/***/ }),
-
-/***/ "fs":
-/*!*********************!*\
-  !*** external "fs" ***!
-  \*********************/
-/***/ ((module) => {
-
-module.exports = require("fs");
-
-/***/ }),
-
-/***/ "path":
-/*!***********************!*\
-  !*** external "path" ***!
-  \***********************/
-/***/ ((module) => {
-
-module.exports = require("path");
 
 /***/ })
 
@@ -1241,7 +1158,7 @@ module.exports = require("path");
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 var exports = __webpack_exports__;
 /*!*********************!*\
@@ -1320,7 +1237,7 @@ bootstrap();
 })();
 
 var __webpack_export_target__ = exports;
-for(var __webpack_i__ in __webpack_exports__) __webpack_export_target__[__webpack_i__] = __webpack_exports__[__webpack_i__];
+for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
 if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
 /******/ })()
 ;

@@ -13,6 +13,7 @@ import {
   User, TelegramManager, CreateChannelDto,
   Channel
 } from 'common-tg-service';
+import connectionManager from 'common-tg-service/dist/components/Telegram/utils/connection-manager';
 @Injectable()
 export class AppService implements OnModuleInit {
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
@@ -174,7 +175,7 @@ export class AppService implements OnModuleInit {
   async updateUsers(users: User[]) {
     for (const user of users) {
       try {
-        const telegramClient = await this.telegramService.createClient(user.mobile, false, false);
+        const telegramClient = await connectionManager.getClient(user.mobile, { autoDisconnect: false, handler: false });
         const lastActive = await telegramClient.getLastActiveTime();
         const me = await telegramClient.getMe()
         const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
@@ -190,7 +191,7 @@ export class AppService implements OnModuleInit {
           lastActive, tgId: me.id.toString(),
           recentUsers
         })
-        await this.telegramService.deleteClient(user.mobile);
+        await connectionManager.unregisterClient(user.mobile);
       } catch (error) {
         parseError(error, "UMS :: ")
       }
@@ -367,7 +368,7 @@ export class AppService implements OnModuleInit {
   }
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
-    await this.telegramService.disconnectAll();
+    await connectionManager.disconnectAll();
     await sleep(2000);
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
