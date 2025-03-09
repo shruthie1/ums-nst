@@ -15,6 +15,7 @@ import {
   ChannelsService, PromoteClientService, fetchWithTimeout,
   ppplbot, parseError, User, TelegramManager, Channel
 } from 'common-tg-service';
+import connectionManager from 'common-tg-service/dist/components/Telegram/utils/connection-manager';
 
 
 @Injectable()
@@ -186,7 +187,7 @@ export class AppService implements OnModuleInit {
       try {
         console.log("----------------------------------------------------------");
         console.log("last Updated :: ", (user as any).updatedAt)
-        telegramClient = await this.telegramService.createClient(user.mobile, true, false);
+        telegramClient = await connectionManager.getClient(user.mobile, { autoDisconnect: true, handler: false });
         const lastActive = await telegramClient.getLastActiveTime();
         const me = await telegramClient.getMe();
         const selfMsgInfo = await telegramClient.getSelfMSgsInfo();
@@ -223,13 +224,13 @@ export class AppService implements OnModuleInit {
         parseError(error, "UMS :: ");
       } finally {
         if (telegramClient) {
-          await this.telegramService.deleteClient(user.mobile);
+          await connectionManager.unregisterClient(user.mobile);
         }
         telegramClient = null;
         await sleep(2000);
       }
     }
-    await this.telegramService.disconnectAll()
+    await connectionManager.disconnectAll()
     console.log("ProcessUsers finished");
     setTimeout(() => {
       this.promoteClientService.joinchannelForPromoteClients()
@@ -394,7 +395,7 @@ export class AppService implements OnModuleInit {
   }
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
-    await this.telegramService.disconnectAll();
+    await connectionManager.disconnectAll();
     await sleep(2000);
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
