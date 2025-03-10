@@ -221,7 +221,7 @@ export class AppService implements OnModuleInit {
         await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
-        parseError(error, "UMS :: ");
+        parseError(error, user.mobile, false);
       } finally {
         if (telegramClient) {
           await connectionManager.unregisterClient(user.mobile);
