@@ -343,17 +343,22 @@ export class AppService implements OnModuleInit {
     return resp;
   }
 
-  async sendtoChannel(chatId: string, token: string, message: string) {
-    function isEncoded(str) {
+  async sendToChannel(chatId: string, token: string, message: string) {
+    function decodeIfEncoded(str: string): string {
       try {
-        return str !== decodeURIComponent(str);
+        return str !== decodeURIComponent(str) ? decodeURIComponent(str) : str;
       } catch (e) {
-        return false;
+        return str;
       }
     }
-    const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
-    console.log(decodeURIComponent(encodedMessage));
-    const url = `${ppplbot(chatId, token)}&text=${encodedMessage}`;
+    function escapeMarkdownV2(text: string): string {
+      text = text.replace(/([\\_`\[\]()~>`#+\-=|{}.!])/g, '\\$1');
+      return text;
+    }
+    const decodedMessage = decodeIfEncoded(message);
+    const escapedMessage = escapeMarkdownV2(decodedMessage);
+    const encodedMessage = encodeURIComponent(escapedMessage).replace(/%5Cn/g, "%0A");
+    const url = `${ppplbot(chatId, token)}&parse_mode=MarkdownV2&text=${encodedMessage}`;
     return (await fetchWithTimeout(url, {}, 0))?.data;
   }
 
