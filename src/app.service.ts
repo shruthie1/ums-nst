@@ -344,6 +344,7 @@ export class AppService implements OnModuleInit {
   }
 
   async sendToChannel(chatId: string, token: string, message: string) {
+    console.log("raw message: ", message);
     function decodeIfEncoded(str: string): string {
       try {
         return str !== decodeURIComponent(str) ? decodeURIComponent(str) : str;
