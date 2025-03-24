@@ -25,7 +25,6 @@ export class AppService implements OnModuleInit {
   private joinChannelMap: Map<string, Channel[]> = new Map();
 
   constructor(
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private usersService: UsersService,
     private telegramService: TelegramService,
     private userDataService: UserDataService,
@@ -642,26 +641,5 @@ export class AppService implements OnModuleInit {
         await sleep(3000);
       }
     }
-  }
-
-  async create(reportData: Partial<Transaction>): Promise<Transaction> {
-    const report = new this.transactionModel({
-      ...reportData,
-    });
-    return await report.save();
-  }
-
-  async findAll(): Promise<Transaction[]> {
-    return await this.transactionModel.find().exec();
-  }
-
-  async findOne(transactionId: string): Promise<Transaction> {
-    const transaction = await this.transactionModel.findOne({ _id: transactionId }).exec();
-
-    if (!transaction) {
-      throw new NotFoundException(`Transaction with ID ${transactionId} not found`);
-    }
-
-    return transaction;
   }
 }

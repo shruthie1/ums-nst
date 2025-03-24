@@ -238,21 +238,4 @@ export class AppController {
             </script>`;
     res.send(resp);
   }
-
-  @Post('/transaction')
-  @ApiBody({type: CreateTransactionDto})
-  async create(@Body() reportData: Partial<Transaction>): Promise<Transaction> {
-    return await this.appService.create(reportData);
-  }
-
-  @Get('/transaction')
-  async findAll(): Promise<Transaction[]> {
-    return await this.appService.findAll();
-  }
-
-  @Get('/transaction/:id') // Define a route parameter
-  async findOne(@Param('id') transactionId: string): Promise<Transaction> {
-    return await this.appService.findOne(transactionId);
-  }
-
 }
