@@ -1,43 +1,37 @@
 import { NestFactory } from '@nestjs/core';
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    res.header('Surrogate-Control', 'no-store');
-    next();
+
+  // Enable CORS with all origins allowed
+  app.enableCors({
+    origin: '*',
+    allowedHeaders: '*',
+    methods: '*',
   });
 
-  app.enableCors({
-    allowedHeaders: "*",
-    origin: "*"
-  });
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
+
   app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
   });
+
   const config = new DocumentBuilder()
     .setTitle('NestJS and Express API')
     .setDescription('API documentation')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  // fs.writeFileSync('./swagger-spec.json', JSON.stringify(document, null, 2));
   SwaggerModule.setup('api', app, document);
-  mongoose.set('debug', true)
+
+  mongoose.set('debug', true);
 
   process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
