@@ -59,7 +59,7 @@ let AppController = class AppController {
     async sendToChannel(message, chatId, token) {
         try {
             if (message.length < 1500) {
-                return await this.appService.sendtoChannel(chatId, token, message);
+                return await this.appService.sendToChannel(chatId, token, message);
             }
             else {
                 console.log("Skipped Message:", decodeURIComponent(message));
@@ -478,7 +478,6 @@ const Helpers_1 = __webpack_require__(/*! telegram/Helpers */ "telegram/Helpers"
 const tl_1 = __webpack_require__(/*! telegram/tl */ "telegram/tl");
 const schedule = __webpack_require__(/*! node-schedule-tz */ "node-schedule-tz");
 const common_tg_service_1 = __webpack_require__(/*! common-tg-service */ "common-tg-service");
-const connection_manager_1 = __webpack_require__(/*! common-tg-service/dist/components/Telegram/utils/connection-manager */ "common-tg-service/dist/components/Telegram/utils/connection-manager");
 let AppService = class AppService {
     constructor(usersService, telegramService, userDataService, clientService, activeChannelsService, upiIdService, statService, stat2Service, promoteStatService, channelsService) {
         this.usersService = usersService;
@@ -599,7 +598,7 @@ let AppService = class AppService {
     async updateUsers(users) {
         for (const user of users) {
             try {
-                const telegramClient = await connection_manager_1.default.getClient(user.mobile, { autoDisconnect: false, handler: false });
+                const telegramClient = await common_tg_service_1.connectionManager.getClient(user.mobile, { autoDisconnect: false, handler: false });
                 const lastActive = await telegramClient.getLastActiveTime();
                 const me = await telegramClient.getMe();
                 const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
@@ -615,7 +614,7 @@ let AppService = class AppService {
                     lastActive, tgId: me.id.toString(),
                     recentUsers
                 });
-                await connection_manager_1.default.unregisterClient(user.mobile);
+                await common_tg_service_1.connectionManager.unregisterClient(user.mobile);
             }
             catch (error) {
                 (0, common_tg_service_1.parseError)(error, "UMS :: ");
@@ -758,18 +757,26 @@ let AppService = class AppService {
         console.log(resp);
         return resp;
     }
-    async sendtoChannel(chatId, token, message) {
-        function isEncoded(str) {
+    async sendToChannel(chatId, token, message) {
+        function decodeIfEncoded(str) {
             try {
-                return str !== decodeURIComponent(str);
+                return str !== decodeURIComponent(str) ? decodeURIComponent(str) : str;
             }
             catch (e) {
-                return false;
+                return str;
             }
         }
-        const encodedMessage = isEncoded(message) ? message : encodeURIComponent(message);
-        console.log(decodeURIComponent(encodedMessage));
-        const url = `${(0, common_tg_service_1.ppplbot)(chatId, token)}&text=${encodedMessage}`;
+        function escapeMarkdownV2(text) {
+            text = text.replace(/([\\_`\[\]()~>`#+\-=|{}.!])/g, '\\$1');
+            return text;
+        }
+        const decodedMessage = decodeIfEncoded(message);
+        console.log('Decoded Message:', decodedMessage);
+        const escapedMessage = escapeMarkdownV2(decodedMessage);
+        console.log('Escaped Message:', escapedMessage);
+        const encodedMessage = encodeURIComponent(escapedMessage).replace(/%5Cn/g, "%0A");
+        console.log('Encoded Message:', encodedMessage);
+        const url = `${(0, common_tg_service_1.ppplbot)(chatId, token)}&parse_mode=MarkdownV2&text=${encodedMessage}`;
         return (await (0, common_tg_service_1.fetchWithTimeout)(url, {}, 0))?.data;
     }
     async findAllMasked(query) {
@@ -782,7 +789,7 @@ let AppService = class AppService {
     }
     async joinchannelForClients() {
         console.log("Joining Channel Started");
-        await connection_manager_1.default.disconnectAll();
+        await common_tg_service_1.connectionManager.disconnectAll();
         await (0, Helpers_1.sleep)(2000);
         const clients = await this.clientService.findAll();
         clients.map(async (document) => {
@@ -1080,16 +1087,6 @@ module.exports = require("common-tg-service");
 
 /***/ }),
 
-/***/ "common-tg-service/dist/components/Telegram/utils/connection-manager":
-/*!**************************************************************************************!*\
-  !*** external "common-tg-service/dist/components/Telegram/utils/connection-manager" ***!
-  \**************************************************************************************/
-/***/ ((module) => {
-
-module.exports = require("common-tg-service/dist/components/Telegram/utils/connection-manager");
-
-/***/ }),
-
 /***/ "mongoose":
 /*!***************************!*\
   !*** external "mongoose" ***!
@@ -1173,19 +1170,10 @@ const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-        res.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.header('Pragma', 'no-cache');
-        res.header('Expires', '0');
-        res.header('Surrogate-Control', 'no-store');
-        next();
-    });
     app.enableCors({
-        allowedHeaders: "*",
-        origin: "*"
+        origin: '*',
+        allowedHeaders: '*',
+        methods: '*',
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
         transform: true,
