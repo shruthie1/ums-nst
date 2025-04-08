@@ -5,7 +5,7 @@ import {
   BuildModule, UsersModule, TelegramModule,
   UserDataModule, ClientModule, ActiveChannelsModule,
   UpiIdModule, StatModule, Stat2Module, PromoteStatModule,
-  ChannelsModule, TgSignupModule, LoggerMiddleware
+  ChannelsModule, TgSignupModule, LoggerMiddleware,TimestampModule
 } from 'common-tg-service';
 
 
@@ -15,7 +15,8 @@ import {
     forwardRef(() => UserDataModule), forwardRef(() => ClientModule),
     forwardRef(() => ActiveChannelsModule), forwardRef(() => UpiIdModule),
     forwardRef(() => StatModule), forwardRef(() => Stat2Module), forwardRef(() => PromoteStatModule),
-    forwardRef(() => ChannelsModule), forwardRef(() => TgSignupModule)],
+    forwardRef(() => ChannelsModule), forwardRef(() => TgSignupModule),
+    forwardRef(() => TimestampModule)],
   controllers: [AppController],
   providers: [AppService],
 })
