@@ -15,8 +15,8 @@ import {
     forwardRef(() => UserDataModule), forwardRef(() => ClientModule),
     forwardRef(() => ActiveChannelsModule), forwardRef(() => UpiIdModule),
     forwardRef(() => StatModule), forwardRef(() => Stat2Module), forwardRef(() => PromoteStatModule),
-    forwardRef(() => ChannelsModule), forwardRef(() => TgSignupModule),
-    forwardRef(() => TimestampModule)],
+    forwardRef(() => ChannelsModule), forwardRef(() => TgSignupModule)],
+    // forwardRef(() => TimestampModule)],
   controllers: [AppController],
   providers: [AppService],
 })
