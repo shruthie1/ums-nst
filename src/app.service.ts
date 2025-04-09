@@ -285,11 +285,13 @@ export class AppService implements OnModuleInit {
     return result;
   }
 
-  async updateRecentUser(chatId: string, videoDetails: any): Promise<void> {
+  async updateRecentUser(chatId: string, videoDetails: any): Promise<{ count: number, videoDetails: any }> {
     const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
     const updatedVideoDetails = { ...accessData.videoDetails, ...videoDetails };
     console.log({ videoDetails: updatedVideoDetails, timestamps: accessData.timestamps })
     this.userAccessData.set(chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
+    const result = { count: accessData.timestamps.length, videoDetails: accessData.videoDetails }
+    return result;
   }
 
   async resetRecentUser(chatId: string): Promise<{ count: number }> {

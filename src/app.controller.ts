@@ -48,8 +48,7 @@ export class AppController {
   @ApiBody({ type: Object, description: 'Video details to update', required: true })
   @ApiResponse({ status: 200, description: 'Successfully updated recent user data' })
   async updateRecentUser(@Query('chatId') chatId: string, @Body() videoDetails: any) {
-    await this.appService.updateRecentUser(chatId, videoDetails);
-    return 'Ok';
+    return await this.appService.updateRecentUser(chatId, videoDetails);
   }
 
   @Get('resetRecentUser')
