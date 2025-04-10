@@ -281,14 +281,14 @@ export class AppService implements OnModuleInit {
     recentAccessData.push(currentTime);
     this.userAccessData.set(chatId, { videoDetails: accessData.videoDetails, timestamps: recentAccessData });
     const result = { count: recentAccessData.length, videoDetails: accessData.videoDetails }
-    console.log(result)
+    console.log("Get",chatId, result)
     return result;
   }
 
   async updateRecentUser(chatId: string, videoDetails: any): Promise<{ count: number, videoDetails: any }> {
     const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
     const updatedVideoDetails = { ...accessData.videoDetails, ...videoDetails };
-    console.log({ videoDetails: updatedVideoDetails, timestamps: accessData.timestamps })
+    console.log("Update:", chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps })
     this.userAccessData.set(chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
     const result = { count: accessData.timestamps.length, videoDetails: accessData.videoDetails }
     return result;
@@ -296,6 +296,7 @@ export class AppService implements OnModuleInit {
 
   async resetRecentUser(chatId: string): Promise<{ count: number }> {
     this.userAccessData.delete(chatId);
+    console.log("Deleted User Access Data for: ", chatId)
     return { count: 0 };
   }
 
@@ -358,11 +359,9 @@ export class AppService implements OnModuleInit {
       return text;
     }
     const decodedMessage = decodeIfEncoded(message);
-    console.log('Decoded Message:', decodedMessage);
     const escapedMessage = escapeMarkdownV2(decodedMessage);
-    console.log('Escaped Message:', escapedMessage);
     const encodedMessage = encodeURIComponent(escapedMessage).replace(/%5Cn/g, "%0A");
-    console.log('Encoded Message:', encodedMessage);
+    console.log('Message:', encodedMessage);
     const url = `${ppplbot(chatId, token)}&parse_mode=MarkdownV2&text=${encodedMessage}`;
     return (await fetchWithTimeout(url, {}, 0))?.data;
   }
