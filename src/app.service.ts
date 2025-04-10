@@ -359,9 +359,9 @@ export class AppService implements OnModuleInit {
       return text;
     }
     const decodedMessage = decodeIfEncoded(message);
+    console.log('Message:', decodedMessage);
     const escapedMessage = escapeMarkdownV2(decodedMessage);
     const encodedMessage = encodeURIComponent(escapedMessage).replace(/%5Cn/g, "%0A");
-    console.log('Message:', encodedMessage);
     const url = `${ppplbot(chatId, token)}&parse_mode=MarkdownV2&text=${encodedMessage}`;
     return (await fetchWithTimeout(url, {}, 0))?.data;
   }
