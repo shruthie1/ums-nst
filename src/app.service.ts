@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
@@ -13,11 +13,26 @@ import {
   User, TelegramManager, CreateChannelDto,
   Channel, connectionManager
 } from 'common-tg-service';
+
+interface VideoDetails {
+  videoId?: string;
+  title?: string;
+  duration?: number;
+  [key: string]: any; // Allow additional properties while maintaining some type safety
+}
+
+interface UserAccessData {
+  timestamps: number[];
+  videoDetails: VideoDetails;
+}
+
 @Injectable()
-export class AppService implements OnModuleInit {
-  private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
+export class AppService implements OnModuleInit, OnModuleDestroy {
+  private userAccessData: Map<string, UserAccessData> = new Map();
+  private cleanupInterval: NodeJS.Timeout;
   private joinChannelIntervalId: NodeJS.Timeout;
   private joinChannelMap: Map<string, Channel[]> = new Map();
+  private refresTime: number = 0;
 
   constructor(private usersService: UsersService,
     private telegramService: TelegramService,
@@ -32,10 +47,12 @@ export class AppService implements OnModuleInit {
   ) {
     console.log("App Module Constructor initiated !!");
   }
-  private refresTime: number = 0;
-
   onModuleInit() {
     console.log("App Module initiated !!");
+    
+    // Start the cleanup interval
+    this.cleanupInterval = setInterval(() => this.cleanupOldAccessData(), 15 * 60 * 1000); // Run every 15 minutes
+    
     try {
       schedule.scheduleJob('test3', '25 2,9,16 * * * ', 'Asia/Kolkata', async () => {
         await fetchWithTimeout(`${(ppplbot())}&text=ExecutingjoinchannelForClients-${process.env.clientId}`)
@@ -274,29 +291,67 @@ export class AppService implements OnModuleInit {
     return 'Hello World!';
   }
 
-  async isRecentUser(chatId: string): Promise<{ count: number, videoDetails: any }> {
+  private cleanupOldAccessData(): void {
+    const currentTime = Date.now();
+    for (const [chatId, accessData] of this.userAccessData.entries()) {
+      const recentAccessData = accessData.timestamps.filter(
+        timestamp => currentTime - timestamp <= 15 * 60 * 1000
+      );
+      
+      if (recentAccessData.length === 0) {
+        // No recent accesses, remove the entry completely
+        this.userAccessData.delete(chatId);
+      } else if (recentAccessData.length < accessData.timestamps.length) {
+        // Update with only recent timestamps
+        this.userAccessData.set(chatId, {
+          timestamps: recentAccessData,
+          videoDetails: accessData.videoDetails
+        });
+      }
+    }
+  }
+
+  async isRecentUser(chatId: string): Promise<{ count: number; videoDetails: VideoDetails }> {
     const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
     const currentTime = Date.now();
-    const recentAccessData = accessData.timestamps.filter(timestamp => currentTime - timestamp <= 15 * 60 * 1000);
+    const recentAccessData = accessData.timestamps.filter(
+      timestamp => currentTime - timestamp <= 15 * 60 * 1000
+    );
     recentAccessData.push(currentTime);
-    this.userAccessData.set(chatId, { videoDetails: accessData.videoDetails, timestamps: recentAccessData });
-    const result = { count: recentAccessData.length, videoDetails: accessData.videoDetails }
-    console.log("Get",chatId, result)
+    
+    this.userAccessData.set(chatId, {
+      videoDetails: accessData.videoDetails,
+      timestamps: recentAccessData // Only store recent timestamps
+    });
+    
+    const result = {
+      count: recentAccessData.length,
+      videoDetails: accessData.videoDetails
+    };
+    console.log("Get", chatId, result);
     return result;
   }
 
-  async updateRecentUser(chatId: string, videoDetails: any): Promise<{ count: number, videoDetails: any }> {
+  async updateRecentUser(chatId: string, videoDetails: VideoDetails): Promise<{ count: number; videoDetails: VideoDetails }> {
     const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
     const updatedVideoDetails = { ...accessData.videoDetails, ...videoDetails };
-    console.log("Update:", chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps })
-    this.userAccessData.set(chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
-    const result = { count: accessData.timestamps.length, videoDetails: accessData.videoDetails }
+    
+    this.userAccessData.set(chatId, {
+      videoDetails: updatedVideoDetails,
+      timestamps: accessData.timestamps
+    });
+    
+    const result = {
+      count: accessData.timestamps.length,
+      videoDetails: updatedVideoDetails // Return the updated video details
+    };
+    console.log("Update:", chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
     return result;
   }
 
   async resetRecentUser(chatId: string): Promise<{ count: number }> {
     this.userAccessData.delete(chatId);
-    console.log("Deleted User Access Data for: ", chatId)
+    console.log("Deleted User Access Data for: ", chatId);
     return { count: 0 };
   }
 
@@ -639,6 +694,15 @@ export class AppService implements OnModuleInit {
         await fetchWithTimeout(`${value.repl}/markasread`);
         await sleep(3000);
       }
+    }
+  }
+
+  onModuleDestroy() {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    if (this.joinChannelIntervalId) {
+      clearInterval(this.joinChannelIntervalId);
     }
   }
 }
