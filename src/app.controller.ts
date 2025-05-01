@@ -1,11 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { AppService } from './app.service';
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { AppService, VideoDetails } from './app.service';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { existsSync, mkdirSync, promises as fs } from 'fs';
-import { join } from 'path';
-import { diskStorage} from 'multer';
 import { parseError } from 'common-tg-service';
 
 @Controller()
@@ -47,7 +43,7 @@ export class AppController {
   @ApiParam({ name: 'chatId', type: 'string', required: true })
   @ApiBody({ type: Object, description: 'Video details to update', required: true })
   @ApiResponse({ status: 200, description: 'Successfully updated recent user data' })
-  async updateRecentUser(@Query('chatId') chatId: string, @Body() videoDetails: any) {
+  async updateRecentUser(@Query('chatId') chatId: string, @Body() videoDetails: any): Promise<VideoDetails> {
     return await this.appService.updateRecentUser(chatId, videoDetails);
   }
 

@@ -14,7 +14,7 @@ import {
   Channel, connectionManager
 } from 'common-tg-service';
 
-interface VideoDetails {
+export interface VideoDetails {
   videoId?: string;
   title?: string;
   duration?: number;
