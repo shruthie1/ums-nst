@@ -278,6 +278,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
 
     var query = {
+      expired: false,
       $or: [
         { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
         { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
