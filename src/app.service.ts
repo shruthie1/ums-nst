@@ -3,15 +3,11 @@ import * as schedule from 'node-schedule-tz';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
-// src/transaction/transaction.service.ts
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Transaction } from './transaction.schema';
 import { shouldMatch } from './utils';
 import {
   UsersService, TelegramService, UserDataService,
   ClientService, ActiveChannelsService, UpiIdService,
-  StatService, Stat2Service, PromoteStatService,
+  Stat1Service, Stat2Service, PromoteStatService,
   ChannelsService, PromoteClientService, fetchWithTimeout,
   ppplbot, parseError, User, TelegramManager, Channel,
   connectionManager
@@ -31,7 +27,7 @@ export class AppService implements OnModuleInit {
     private clientService: ClientService,
     private activeChannelsService: ActiveChannelsService,
     private upiIdService: UpiIdService,
-    private statService: StatService,
+    private statService: Stat1Service,
     private stat2Service: Stat2Service,
     private promoteStatService: PromoteStatService,
     private channelsService: ChannelsService,
