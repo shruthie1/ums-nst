@@ -7,16 +7,17 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS with all origins allowed
   app.enableCors({
     origin: '*',
     allowedHeaders: '*',
     methods: '*',
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');

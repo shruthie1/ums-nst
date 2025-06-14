@@ -2,16 +2,26 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
-import * as schedule from 'node-schedule-tz'
+import * as schedule from 'node-schedule-tz';
 import {
   UsersService,
-  TelegramService, UserDataService,
-  ClientService, ActiveChannelsService,
-  UpiIdService, StatService, Stat2Service,
-  PromoteStatService, ChannelsService,
-  fetchWithTimeout, ppplbot, parseError,
-  User, TelegramManager, CreateChannelDto,
-  Channel, connectionManager
+  TelegramService,
+  UserDataService,
+  ClientService,
+  ActiveChannelsService,
+  UpiIdService,
+  Stat1Service,
+  Stat2Service,
+  PromoteStatService,
+  ChannelsService,
+  User,
+  TelegramManager,
+  CreateChannelDto,
+  Channel,
+  fetchWithTimeout,
+  parseError,
+  ppplbot,
+  connectionManager,
 } from 'common-tg-service';
 
 export interface VideoDetails {
@@ -34,35 +44,46 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   private joinChannelMap: Map<string, Channel[]> = new Map();
   private refresTime: number = 0;
 
-  constructor(private usersService: UsersService,
+  constructor(
+    private usersService: UsersService,
     private telegramService: TelegramService,
     private userDataService: UserDataService,
     private clientService: ClientService,
     private activeChannelsService: ActiveChannelsService,
     private upiIdService: UpiIdService,
-    private statService: StatService,
+    private statService: Stat1Service,
     private stat2Service: Stat2Service,
     private promoteStatService: PromoteStatService,
     private channelsService: ChannelsService,
   ) {
-    console.log("App Module Constructor initiated !!");
+    console.log('App Module Constructor initiated !!');
   }
   onModuleInit() {
-    console.log("App Module initiated !!");
-    
+    console.log('App Module initiated !!');
+
     // Start the cleanup interval
-    this.cleanupInterval = setInterval(() => this.cleanupOldAccessData(), 15 * 60 * 1000); // Run every 15 minutes
-    
+    this.cleanupInterval = setInterval(
+      () => this.cleanupOldAccessData(),
+      15 * 60 * 1000,
+    ); // Run every 15 minutes
+
     try {
-      schedule.scheduleJob('test3', '25 2,9,16 * * * ', 'Asia/Kolkata', async () => {
-        await fetchWithTimeout(`${(ppplbot())}&text=ExecutingjoinchannelForClients-${process.env.clientId}`)
-        const now = new Date();
-        if (now.getUTCDate() % 3 === 1) {
-          this.leaveChannelsAll()
-        } else {
-          await this.joinchannelForClients()
-        }
-      })
+      schedule.scheduleJob(
+        'test3',
+        '25 2,9,16 * * * ',
+        'Asia/Kolkata',
+        async () => {
+          await fetchWithTimeout(
+            `${ppplbot()}&text=ExecutingjoinchannelForClients-${process.env.clientId}`,
+          );
+          const now = new Date();
+          if (now.getUTCDate() % 3 === 1) {
+            this.leaveChannelsAll();
+          } else {
+            await this.joinchannelForClients();
+          }
+        },
+      );
 
       // schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
       //   await this.clientService.refreshMap();
@@ -95,28 +116,43 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
       //   await this.promoteStatService.reinitPromoteStats();
       // })
       // this.checkPromotions();
-      console.log("Added All Cron Jobs")
+      console.log('Added All Cron Jobs');
     } catch (error) {
-      console.log("Some Error: ", error);
+      console.log('Some Error: ', error);
     }
   }
   async checkPromotions() {
     setInterval(async () => {
       const clients = await this.clientService.findAll();
       for (const client of clients) {
-        const userPromoteStats = await this.promoteStatService.findByClient(client.clientId);
-        if (userPromoteStats?.isActive && (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) > 6) {
+        const userPromoteStats = await this.promoteStatService.findByClient(
+          client.clientId,
+        );
+        if (
+          userPromoteStats?.isActive &&
+          (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) >
+            6
+        ) {
           try {
-            await fetchWithTimeout(`${client.repl}/promote`, { timeout: 120000 });
-            console.log(client.clientId, ": Promote Triggered!!");
+            await fetchWithTimeout(`${client.repl}/promote`, {
+              timeout: 120000,
+            });
+            console.log(client.clientId, ': Promote Triggered!!');
           } catch (error) {
-            parseError(error, "Promotion Check Err")
+            parseError(error, 'Promotion Check Err');
           }
         } else {
-          console.log(client.clientId, ": ALL Good!! ---", Math.floor((Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60)));
+          console.log(
+            client.clientId,
+            ': ALL Good!! ---',
+            Math.floor(
+              (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) /
+                (1000 * 60),
+            ),
+          );
         }
       }
-    }, 240000)
+    }, 240000);
   }
 
   async getPromotionStatsPlain() {
@@ -129,14 +165,14 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   }
 
   async leaveChannelsAll() {
-    await this.sendToAll('leavechannels')
+    await this.sendToAll('leavechannels');
   }
 
   async sendToAll(endpoint: string) {
     const clients = await this.clientService.findAll();
     for (const client of clients) {
-      const url = `${client.repl}/${endpoint}`
-      console.log("Trying : ", url)
+      const url = `${client.repl}/${endpoint}`;
+      console.log('Trying : ', url);
       fetchWithTimeout(url);
       await sleep(2000);
     }
@@ -185,43 +221,68 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
     this.updateUsers(users);
-    return "Initiated Users Update"
+    return 'Initiated Users Update';
   }
 
   async updateUsers(users: User[]) {
     for (const user of users) {
       try {
-        const telegramClient = await connectionManager.getClient(user.mobile, { autoDisconnect: false, handler: false });
+        const telegramClient = await connectionManager.getClient(user.mobile, {
+          autoDisconnect: false,
+          handler: false,
+        });
         const lastActive = await telegramClient.getLastActiveTime();
-        const me = await telegramClient.getMe()
+        const me = await telegramClient.getMe();
         const selfMSgInfo = await telegramClient.getSelfMSgsInfo();
         const dialogs = await telegramClient.getDialogs({ limit: 500 });
-        const contacts = <Api.contacts.Contacts>await telegramClient.getContacts()
+        const contacts = <Api.contacts.Contacts>(
+          await telegramClient.getContacts()
+        );
         const callsInfo = await telegramClient.getCallLog();
-        const recentUsers = await this.processChannels(dialogs, telegramClient)
+        const recentUsers = await this.processChannels(dialogs, telegramClient);
         await this.usersService.update(user.tgId, {
           contacts: contacts.savedCount,
-          calls: callsInfo?.totalCalls > 0 ? callsInfo : { chatCallCounts: [], incoming: 0, outgoing: 0, totalCalls: 0, video: 0 },
+          calls:
+            callsInfo?.totalCalls > 0
+              ? callsInfo
+              : {
+                  chatCallCounts: [],
+                  incoming: 0,
+                  outgoing: 0,
+                  totalCalls: 0,
+                  video: 0,
+                },
           firstName: me.firstName,
-          lastName: me.lastName, username: me.username, msgs: selfMSgInfo.total, totalChats: dialogs.total,
-          lastActive, tgId: me.id.toString(),
-          recentUsers
-        })
+          lastName: me.lastName,
+          username: me.username,
+          msgs: selfMSgInfo.total,
+          totalChats: dialogs.total,
+          lastActive,
+          tgId: me.id.toString(),
+          recentUsers,
+        });
         await connectionManager.unregisterClient(user.mobile);
       } catch (error) {
-        parseError(error, "UMS :: ")
+        parseError(error, 'UMS :: ');
       }
     }
   }
 
-  async processChannels(dialogs: TotalList<Dialog>, telegramClient: TelegramManager) {
-    const recentUsers = []
+  async processChannels(
+    dialogs: TotalList<Dialog>,
+    telegramClient: TelegramManager,
+  ) {
+    const recentUsers = [];
     for (const chat of dialogs) {
       try {
         if (chat.isChannel || chat.isGroup) {
           const chatEntity = <Api.Channel>chat.entity;
           const cannotSendMsgs = chatEntity.defaultBannedRights?.sendMessages;
-          if (!chatEntity.broadcast && !cannotSendMsgs && chatEntity.participantsCount > 50) {
+          if (
+            !chatEntity.broadcast &&
+            !cannotSendMsgs &&
+            chatEntity.participantsCount > 50
+          ) {
             const channel: CreateChannelDto = {
               channelId: chatEntity.id.toString(),
               canSendMsgs: true,
@@ -233,59 +294,73 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
               restricted: chatEntity.restricted,
               sendMessages: true,
               username: chatEntity.username,
-              forbidden: false
-            }
-            this.channelsService.update(channel.channelId, channel)
+              forbidden: false,
+            };
+            this.channelsService.update(channel.channelId, channel);
           }
         } else {
           const msgs = await telegramClient.getMessages(chat.id);
           if (msgs.total > 1000) {
             for (const message of msgs) {
               let video = 0;
-              let photo = 0
+              let photo = 0;
               if (message.media instanceof Api.MessageMediaPhoto) {
-                photo++
-              } else if (message.media instanceof Api.MessageMediaDocument && (message.document?.mimeType?.startsWith('video') || message.document?.mimeType?.startsWith('image'))) {
-                video++
+                photo++;
+              } else if (
+                message.media instanceof Api.MessageMediaDocument &&
+                (message.document?.mimeType?.startsWith('video') ||
+                  message.document?.mimeType?.startsWith('image'))
+              ) {
+                video++;
               }
               recentUsers.push({
                 total: msgs.total,
                 video,
                 photo,
                 chatId: chat.id.toString(),
-              })
+              });
             }
           }
         }
         return recentUsers;
       } catch (error) {
-        parseError(error)
+        parseError(error);
       }
     }
   }
 
-
   async getUser(limit?: number, skip?: number) {
-    var currentDate = new Date();
+    const currentDate = new Date();
 
-    var weekAgoDate = new Date(currentDate);
+    const weekAgoDate = new Date(currentDate);
     weekAgoDate.setDate(currentDate.getDate() - 7);
 
-    var monthAgoDate = new Date(currentDate);
+    const monthAgoDate = new Date(currentDate);
     monthAgoDate.setDate(currentDate.getDate() - 30);
 
-    var threeMonthAgoDate = new Date(currentDate);
+    const threeMonthAgoDate = new Date(currentDate);
     threeMonthAgoDate.setDate(currentDate.getDate() - 90);
 
-    var query = {
+    const query = {
       expired: false,
       $or: [
         { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-        { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-        { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-      ]
+        {
+          createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate },
+          updatedAt: { $lt: monthAgoDate },
+        },
+        {
+          createdAt: { $lte: threeMonthAgoDate },
+          updatedAt: { $lte: threeMonthAgoDate },
+        },
+      ],
     };
-    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0)
+    const users = await this.usersService.executeQuery(
+      query,
+      {},
+      limit || 300,
+      skip || 0,
+    );
     return users;
   }
   getHello(): string {
@@ -296,9 +371,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const currentTime = Date.now();
     for (const [chatId, accessData] of this.userAccessData.entries()) {
       const recentAccessData = accessData.timestamps.filter(
-        timestamp => currentTime - timestamp <= 15 * 60 * 1000
+        (timestamp) => currentTime - timestamp <= 15 * 60 * 1000,
       );
-      
+
       if (recentAccessData.length === 0) {
         // No recent accesses, remove the entry completely
         this.userAccessData.delete(chatId);
@@ -306,63 +381,88 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         // Update with only recent timestamps
         this.userAccessData.set(chatId, {
           timestamps: recentAccessData,
-          videoDetails: accessData.videoDetails
+          videoDetails: accessData.videoDetails,
         });
       }
     }
   }
 
-  async isRecentUser(chatId: string): Promise<{ count: number; videoDetails: VideoDetails }> {
-    const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
+  async isRecentUser(
+    chatId: string,
+  ): Promise<{ count: number; videoDetails: VideoDetails }> {
+    const accessData = this.userAccessData.get(chatId) || {
+      timestamps: [],
+      videoDetails: {},
+    };
     const currentTime = Date.now();
     const recentAccessData = accessData.timestamps.filter(
-      timestamp => currentTime - timestamp <= 15 * 60 * 1000
+      (timestamp) => currentTime - timestamp <= 15 * 60 * 1000,
     );
     recentAccessData.push(currentTime);
-    
+
     this.userAccessData.set(chatId, {
       videoDetails: accessData.videoDetails,
-      timestamps: recentAccessData // Only store recent timestamps
+      timestamps: recentAccessData, // Only store recent timestamps
     });
-    
+
     const result = {
       count: recentAccessData.length,
-      videoDetails: accessData.videoDetails
+      videoDetails: accessData.videoDetails,
     };
-    console.log("Get", chatId, result);
+    console.log('Get', chatId, result);
     return result;
   }
 
-  async updateRecentUser(chatId: string, videoDetails: VideoDetails): Promise<{ count: number; videoDetails: VideoDetails }> {
-    const accessData = this.userAccessData.get(chatId) || { timestamps: [], videoDetails: {} };
+  async updateRecentUser(
+    chatId: string,
+    videoDetails: VideoDetails,
+  ): Promise<{ count: number; videoDetails: VideoDetails }> {
+    const accessData = this.userAccessData.get(chatId) || {
+      timestamps: [],
+      videoDetails: {},
+    };
     const updatedVideoDetails = { ...accessData.videoDetails, ...videoDetails };
-    
+
     this.userAccessData.set(chatId, {
       videoDetails: updatedVideoDetails,
-      timestamps: accessData.timestamps
+      timestamps: accessData.timestamps,
     });
-    
+
     const result = {
       count: accessData.timestamps.length,
-      videoDetails: updatedVideoDetails // Return the updated video details
+      videoDetails: updatedVideoDetails, // Return the updated video details
     };
-    console.log("Update:", chatId, { videoDetails: updatedVideoDetails, timestamps: accessData.timestamps });
+    console.log('Update:', chatId, {
+      videoDetails: updatedVideoDetails,
+      timestamps: accessData.timestamps,
+    });
     return result;
   }
 
   async resetRecentUser(chatId: string): Promise<{ count: number }> {
     this.userAccessData.delete(chatId);
-    console.log("Deleted User Access Data for: ", chatId);
+    console.log('Deleted User Access Data for: ', chatId);
     return { count: 0 };
   }
 
   async getPaymentStats(chatId: string, profile: string) {
-    const resp = { paid: 0, demoGiven: 0, secondShow: 0, fullShow: 0, latestCallTime: 0, videos: [] };
-    const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
-    const fiveDaysAgo = Date.now() - (5 * 24 * 60 * 60 * 1000);
+    const resp = {
+      paid: 0,
+      demoGiven: 0,
+      secondShow: 0,
+      fullShow: 0,
+      latestCallTime: 0,
+      videos: [],
+    };
+    const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
 
     try {
-      const query1 = { chatId, profile: { $exists: true, $ne: profile }, payAmount: { $gte: 10 } };
+      const query1 = {
+        chatId,
+        profile: { $exists: true, $ne: profile },
+        payAmount: { $gte: 10 },
+      };
       const query2 = { chatId, profile: { $exists: true, $ne: profile } };
 
       const document = await this.userDataService.executeQuery(query1);
@@ -390,7 +490,13 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             resp.videos.push(...doc.videos);
           } else {
             if (doc.lastMsgTimeStamp > fiveDaysAgo) {
-              await this.userDataService.update(doc.profile, doc.chatId, { payAmount: 0, videos: [], demoGiven: false, secondShow: false, highestPayAmount: 0, });
+              await this.userDataService.update(doc.profile, doc.chatId, {
+                payAmount: 0,
+                videos: [],
+                demoGiven: false,
+                secondShow: false,
+                highestPayAmount: 0,
+              });
             }
           }
         }
@@ -417,153 +523,194 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const decodedMessage = decodeIfEncoded(message);
     console.log('Message:', decodedMessage);
     const escapedMessage = escapeMarkdownV2(decodedMessage);
-    const encodedMessage = encodeURIComponent(escapedMessage).replace(/%5Cn/g, "%0A");
+    const encodedMessage = encodeURIComponent(escapedMessage).replace(
+      /%5Cn/g,
+      '%0A',
+    );
     const url = `${ppplbot(chatId, token)}&parse_mode=MarkdownV2&text=${encodedMessage}`;
     return (await fetchWithTimeout(url, {}, 0))?.data;
   }
 
   async findAllMasked(query: object) {
-    return await this.clientService.findAllMasked(query)
+    return await this.clientService.findAllMasked(query);
   }
   async portalData(query: object) {
     const client = (await this.clientService.findAllMasked(query))[0];
     const upis = await this.upiIdService.findOne();
-    return { client, upis }
+    return { client, upis };
   }
   async joinchannelForClients(): Promise<string> {
-    console.log("Joining Channel Started")
+    console.log('Joining Channel Started');
     await connectionManager.disconnectAll();
     await sleep(2000);
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
       try {
-        let resp = await fetchWithTimeout(`${document.repl}/channelinfo`, { timeout: 200000 }, 1);
-        await fetchWithTimeout(`${(ppplbot())}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`)
-        if (resp?.data?.canSendTrueCount && resp?.data?.canSendTrueCount < 350) {
-          const result = await this.activeChannelsService.getActiveChannels(150, 0, resp.data?.ids);
-          await fetchWithTimeout(`${(ppplbot())}&text=Started Joining Channels for ${document.clientId}: ${result.length}`)
+        const resp = await fetchWithTimeout(
+          `${document.repl}/channelinfo`,
+          { timeout: 200000 },
+          1,
+        );
+        await fetchWithTimeout(
+          `${ppplbot()}&text=Channel SendTrue :: ${document.clientId}: ${resp.data.canSendTrueCount}`,
+        );
+        if (
+          resp?.data?.canSendTrueCount &&
+          resp?.data?.canSendTrueCount < 350
+        ) {
+          const result = await this.activeChannelsService.getActiveChannels(
+            150,
+            0,
+            resp.data?.ids,
+          );
+          await fetchWithTimeout(
+            `${ppplbot()}&text=Started Joining Channels for ${document.clientId}: ${result.length}`,
+          );
           this.joinChannelMap.set(document.repl, result);
         }
       } catch (error) {
-        parseError(error)
+        parseError(error);
       }
-    })
+    });
     this.joinChannelQueue();
-    console.log("Joining Channel Triggered Succesfully for ", clients.length);
-    return "Initiated Joining channels"
+    console.log('Joining Channel Triggered Succesfully for ', clients.length);
+    return 'Initiated Joining channels';
   }
 
   async joinChannelQueue() {
-    this.joinChannelIntervalId = setInterval(async () => {
-      const keys = Array.from(this.joinChannelMap.keys());
-      if (keys.length > 0) {
-        console.log("In JOIN CHANNEL interval: ", new Date().toISOString());
-        const promises = keys.map(async url => {
-          const channels = this.joinChannelMap.get(url);
-          if (channels && channels.length > 0) {
-            const channel = channels.shift();
-            console.log(url, " Pending Channels :", channels.length)
-            this.joinChannelMap.set(url, channels);
-            try {
-              await fetchWithTimeout(`${url}/joinchannel?username=${channel.username}`);
-              console.log(url, " Trying to join :", channel.username);
-            } catch (error) {
-              parseError(error, "Outer Err: ");
+    this.joinChannelIntervalId = setInterval(
+      async () => {
+        const keys = Array.from(this.joinChannelMap.keys());
+        if (keys.length > 0) {
+          console.log('In JOIN CHANNEL interval: ', new Date().toISOString());
+          const promises = keys.map(async (url) => {
+            const channels = this.joinChannelMap.get(url);
+            if (channels && channels.length > 0) {
+              const channel = channels.shift();
+              console.log(url, ' Pending Channels :', channels.length);
+              this.joinChannelMap.set(url, channels);
+              try {
+                await fetchWithTimeout(
+                  `${url}/joinchannel?username=${channel.username}`,
+                );
+                console.log(url, ' Trying to join :', channel.username);
+              } catch (error) {
+                parseError(error, 'Outer Err: ');
+              }
+            } else {
+              this.joinChannelMap.delete(url);
             }
-          } else {
-            this.joinChannelMap.delete(url);
-          }
-        });
-        await Promise.all(promises);
-      } else {
-        this.clearJoinChannelInterval()
-      }
-    }, 3 * 60 * 1000);
+          });
+          await Promise.all(promises);
+        } else {
+          this.clearJoinChannelInterval();
+        }
+      },
+      3 * 60 * 1000,
+    );
   }
 
   clearJoinChannelInterval() {
     if (this.joinChannelIntervalId) {
-      console.log("Cleared joinChannel Set Interval")
+      console.log('Cleared joinChannel Set Interval');
       clearInterval(this.joinChannelIntervalId);
       this.joinChannelIntervalId = null;
     }
   }
 
   async refreshmap() {
-    await this.clientService.refreshMap()
+    await this.clientService.refreshMap();
     await this.clientService.checkNpoint();
   }
 
   async blockUserAll(chatId: string) {
-    let profileData = ''
+    let profileData = '';
     const userDatas = await this.userDataService.search({ chatId });
     for (const userData of userDatas) {
-      const profileRegex = new RegExp(userData.profile, "i")
-      const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
+      const profileRegex = new RegExp(userData.profile, 'i');
+      const profiles = await this.clientService.executeQuery({
+        clientId: { $regex: profileRegex },
+      });
       for (const profile of profiles) {
         const url = `${profile.repl}/blockuser/${chatId}`;
-        console.log("Executing: ", url)
+        console.log('Executing: ', url);
         const result = await fetchWithTimeout(url);
-        console.log(result.data)
+        console.log(result.data);
       }
-      profileData = profileData + " | " + userData.profile;
+      profileData = profileData + ' | ' + userData.profile;
     }
-    return profileData
+    return profileData;
   }
 
   async unblockUserAll(chatId: string) {
-    let profileData = ''
+    let profileData = '';
     const userDatas = await this.userDataService.search({ chatId });
     for (const userData of userDatas) {
-      const profileRegex = new RegExp(userData.profile, "i")
-      const profiles = await this.clientService.executeQuery({ clientId: { $regex: profileRegex } })
+      const profileRegex = new RegExp(userData.profile, 'i');
+      const profiles = await this.clientService.executeQuery({
+        clientId: { $regex: profileRegex },
+      });
       for (const profile of profiles) {
         const url = `${profile.repl}/unblockuser/${chatId}`;
-        console.log("Executing: ", url)
+        console.log('Executing: ', url);
         const result = await fetchWithTimeout(url);
-        console.log(result.data)
+        console.log(result.data);
       }
-      profileData = profileData + " | " + userData.profile;
+      profileData = profileData + ' | ' + userData.profile;
     }
-    return profileData
+    return profileData;
   }
 
   async getRequestCall(username: string, chatId: string): Promise<any> {
-    const user = (await this.clientService.search({ username: username.toLowerCase() }))[0];
-    console.log(`Call Request Recived: ${username} | ${chatId}`)
+    const user = (
+      await this.clientService.search({ username: username.toLowerCase() })
+    )[0];
+    console.log(`Call Request Recived: ${username} | ${chatId}`);
     if (user) {
-      const payload = { chatId, profile: user.clientId }
+      const payload = { chatId, profile: user.clientId };
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         data: JSON.stringify(payload),
       };
-      const result = await fetchWithTimeout("https://arpithared.onrender.com/events/schedule", options, 3);
-      console.log(result?.data)
+      const result = await fetchWithTimeout(
+        'https://arpithared.onrender.com/events/schedule',
+        options,
+        3,
+      );
+      console.log(result?.data);
     }
   }
 
-  async getUserData(profile: string, clientId: string, chatId: string): Promise<any> {
+  async getUserData(
+    profile: string,
+    clientId: string,
+    chatId: string,
+  ): Promise<any> {
     if (!profile) {
-      profile = clientId?.replace(/\d/g, '')
+      profile = clientId?.replace(/\d/g, '');
     }
     return await this.userDataService.findOne(profile, chatId);
   }
 
-  async updateUserData(profile: string, clientId: string, body: any): Promise<any> {
+  async updateUserData(
+    profile: string,
+    clientId: string,
+    body: any,
+  ): Promise<any> {
     if (!profile) {
-      profile = clientId?.replace(/\d/g, '')
+      profile = clientId?.replace(/\d/g, '');
     }
     const chatId = body.chatId;
     return await this.userDataService.update(profile, chatId, body);
   }
 
-  async updateUserConfig(chatId: string, profile: string, data: any): Promise<any> {
-    this.userDataService.update(profile, chatId, data)
-  }
-
-  async getUserConfig(filter: any): Promise<any> {
-    // Implement your logic here
+  async updateUserConfig(
+    chatId: string,
+    profile: string,
+    data: any,
+  ): Promise<any> {
+    this.userDataService.update(profile, chatId, data);
   }
 
   async getallupiIds() {
@@ -571,13 +718,13 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getUserInfo(filter: any): Promise<any> {
-    const client = <any>(await this.clientService.executeQuery(filter,))[0]
-    const result = { ...(client._doc ? client._doc : client) }
+    const client = <any>(await this.clientService.executeQuery(filter))[0];
+    const result = { ...(client._doc ? client._doc : client) };
     delete result['session'];
     delete result['mobile'];
     delete result['deployKey'];
     delete result['promoteMobile'];
-    return result
+    return result;
   }
 
   extractNumberFromString(inputString) {
@@ -608,10 +755,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
           totalNewPaid: 0,
           newPaidDemo: 0,
           newPendingDemos: 0,
-          names: "",
+          names: '',
           fullShowPPl: 0,
-          fullShowNames: ""
-        }
+          fullShowNames: '',
+        };
     }
 
     return initializedObject;
@@ -621,21 +768,34 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const profileData = await this.createInitializedObject();
     const stats = await this.statService.findAll();
     for (const stat of stats) {
-      const { count, newUser, payAmount, demoGivenToday, demoGiven, profile, client, name, secondShow } = stat;
+      const {
+        count,
+        newUser,
+        payAmount,
+        demoGivenToday,
+        demoGiven,
+        client,
+        name,
+        secondShow,
+      } = stat;
 
       if (client && profileData[client.toUpperCase()]) {
         const userData = profileData[client.toUpperCase()];
         userData.totalCount += count;
         userData.totalPaid += payAmount > 0 ? 1 : 0;
-        userData.totalOldPaid += (payAmount > 0 && !newUser) ? 1 : 0;
-        userData.oldPaidDemo += (demoGivenToday && !newUser) ? 1 : 0;
-        userData.totalpendingDemos += (payAmount > 25 && !demoGiven) ? 1 : 0;
-        userData.oldPendingDemos += (payAmount > 25 && !demoGiven && !newUser) ? 1 : 0;
+        userData.totalOldPaid += payAmount > 0 && !newUser ? 1 : 0;
+        userData.oldPaidDemo += demoGivenToday && !newUser ? 1 : 0;
+        userData.totalpendingDemos += payAmount > 25 && !demoGiven ? 1 : 0;
+        userData.oldPendingDemos +=
+          payAmount > 25 && !demoGiven && !newUser ? 1 : 0;
         if (payAmount > 25 && !demoGiven) {
           userData.names = userData.names + ` ${name} |`;
         }
 
-        if (demoGiven && ((payAmount > 90 && !secondShow) || (payAmount > 150 && secondShow))) {
+        if (
+          demoGiven &&
+          ((payAmount > 90 && !secondShow) || (payAmount > 150 && secondShow))
+        ) {
           userData.fullShowPPl++;
           userData.fullShowNames = userData.fullShowNames + ` ${name} |`;
         }
@@ -644,29 +804,32 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
           userData.totalNew += 1;
           userData.totalNewPaid += payAmount > 0 ? 1 : 0;
           userData.newPaidDemo += demoGivenToday ? 1 : 0;
-          userData.newPendingDemos += (payAmount > 25 && !demoGiven) ? 1 : 0;
+          userData.newPendingDemos += payAmount > 25 && !demoGiven ? 1 : 0;
         }
       }
     }
 
     const profileDataArray = Object.entries(profileData);
-    profileDataArray.sort((a: any, b: any) => b[1].totalpendingDemos - a[1].totalpendingDemos);
+    profileDataArray.sort(
+      (a: any, b: any) => b[1].totalpendingDemos - a[1].totalpendingDemos,
+    );
     let reply = '';
     for (const [profile, userData] of profileDataArray) {
       reply += `${profile.toUpperCase()} : <b>${(userData as any).totalpendingDemos}</b> | ${(userData as any).names}<br>`;
     }
 
-    profileDataArray.sort((a: any, b: any) => b[1].fullShowPPl - a[1].fullShowPPl);
+    profileDataArray.sort(
+      (a: any, b: any) => b[1].fullShowPPl - a[1].fullShowPPl,
+    );
     let reply2 = '';
     for (const [profile, userData] of profileDataArray) {
       reply2 += `${profile.toUpperCase()} : <b>${(userData as any).fullShowPPl}</b> |${(userData as any).fullShowNames}<br>`;
     }
 
     const reply3 = await this.getPromotionStats();
-    console.log(reply3)
+    console.log(reply3);
 
-    return (
-      `<div>
+    return `<div>
         <div style="display: flex; margin-bottom: 60px">
           <div style="flex: 1;">${reply} </div>
       < div style = "flex: 1; " > ${reply2} </div>
@@ -674,8 +837,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         < div style = "display: flex;" >
           <div style="flex: 1; " > ${reply3} </div>
             </div>
-            </div>`
-    );
+            </div>`;
   }
 
   async getPromotionStats(): Promise<string> {
@@ -689,8 +851,8 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   async checkAndRefresh() {
     if (Date.now() > this.refresTime) {
-      this.refresTime = Date.now() + (5 * 60 * 1000);
-      const clients = await this.clientService.findAll()
+      this.refresTime = Date.now() + 5 * 60 * 1000;
+      const clients = await this.clientService.findAll();
       for (const value of clients) {
         await fetchWithTimeout(`${value.repl}/markasread`);
         await sleep(3000);
