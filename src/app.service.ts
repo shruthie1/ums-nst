@@ -47,6 +47,7 @@ export class AppService implements OnModuleInit {
 
       schedule.scheduleJob('test4', '0 */3 * * *', 'Asia/Kolkata', async () => {
         this.processUsers(400, 0);
+        await this.promoteClientService.joinchannelForPromoteClients();
       })
 
       schedule.scheduleJob('test9', '35 16 * * * ', 'Asia/Kolkata', async () => {
@@ -382,10 +383,10 @@ export class AppService implements OnModuleInit {
   }
 
   async findAllMasked(query: object) {
-    return await this.clientService.findAllMasked(query)
+    return await this.clientService.findAllMasked()
   }
   async portalData(query: object) {
-    const client = (await this.clientService.findAllMasked(query))[0];
+    const client = (await this.clientService.findAllMasked())[0];
     const upis = await this.upiIdService.findOne();
     return { client, upis }
   }
