@@ -16,7 +16,7 @@ async function overwriteFile(branch) {
     });
     console.log(result);
 
-    const url = `https://uptimechecker2.glitch.me/builds`;
+    const url = `https://ums.paidgirl.site/builds`;
     const bodyData = {};
     bodyData[`ums`] = `https://res.cloudinary.com/${process.env.CL_NAME}/raw/upload/v${result.version}/${result.public_id}`
 
