@@ -532,10 +532,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   }
 
   async findAllMasked(query: object) {
-    return await this.clientService.findAllMasked(query);
+    return await this.clientService.findAllMasked();
   }
   async portalData(query: object) {
-    const client = (await this.clientService.findAllMasked(query))[0];
+    const client = (await this.clientService.findAllMasked())[0];
     const upis = await this.upiIdService.findOne();
     return { client, upis };
   }
