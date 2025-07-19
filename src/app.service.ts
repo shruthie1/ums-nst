@@ -2,10 +2,6 @@ import * as schedule from 'node-schedule-tz';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
-// src/transaction/transaction.service.ts
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Transaction } from './transaction.schema';
 import { shouldMatch } from './utils';
 import {
   UsersService, TelegramService, UserDataService,

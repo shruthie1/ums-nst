@@ -5,12 +5,14 @@ import {
   UserDataModule, ClientModule, ActiveChannelsModule,
   UpiIdModule, Stat1Module, Stat2Module, PromoteStatModule,
   ChannelsModule, PromoteClientModule,
-  TransactionModule, LoggerMiddleware
+  TransactionModule, LoggerMiddleware,
+  DynamicDataModule
 } from 'common-tg-service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 @Module({
   imports: [
+    DynamicDataModule,
     BuildModule, UsersModule, TelegramModule,
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
