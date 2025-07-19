@@ -1,4 +1,3 @@
-import { Injectable, OnModuleInit, Query, NotFoundException } from '@nestjs/common';
 import * as schedule from 'node-schedule-tz';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
@@ -11,11 +10,12 @@ import { shouldMatch } from './utils';
 import {
   UsersService, TelegramService, UserDataService,
   ClientService, ActiveChannelsService, UpiIdService,
-  StatService, Stat2Service, PromoteStatService,
+  Stat1Service, Stat2Service, PromoteStatService,
   ChannelsService, PromoteClientService, fetchWithTimeout,
   ppplbot, parseError, User, TelegramManager, Channel,
   connectionManager
 } from 'common-tg-service';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 
 
 @Injectable()
@@ -31,7 +31,7 @@ export class AppService implements OnModuleInit {
     private clientService: ClientService,
     private activeChannelsService: ActiveChannelsService,
     private upiIdService: UpiIdService,
-    private statService: StatService,
+    private stat1Service: Stat1Service,
     private stat2Service: Stat2Service,
     private promoteStatService: PromoteStatService,
     private channelsService: ChannelsService,
@@ -46,7 +46,7 @@ export class AppService implements OnModuleInit {
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
         await this.clientService.refreshMap();
-        await this.statService.deleteAll();
+        await this.stat1Service.deleteAll();
       })
 
       schedule.scheduleJob('test4', '0 */3 * * *', 'Asia/Kolkata', async () => {
@@ -76,7 +76,7 @@ export class AppService implements OnModuleInit {
 
         await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
         await this.userDataService.resetPaidUsers();
-        await this.statService.deleteAll();
+        await this.stat1Service.deleteAll();
         await this.stat2Service.deleteAll();
         await this.promoteStatService.reinitPromoteStats();
       })
@@ -260,10 +260,9 @@ export class AppService implements OnModuleInit {
         }
       })
       .filter(Boolean);
-
+    console.log("Inserting the Channels Found: ", channels.length);
     this.channelsService.createMultiple(channels);
     this.activeChannelsService.createMultiple(channels);
-
   }
 
   async getUser(limit?: number, skip?: number) {
@@ -386,10 +385,10 @@ export class AppService implements OnModuleInit {
   }
 
   async findAllMasked(query: object) {
-    return await this.clientService.findAllMasked(query)
+    return await this.clientService.findAllMasked()
   }
   async portalData(query: object) {
-    const client = (await this.clientService.findAllMasked(query))[0];
+    const client = (await this.clientService.findAllMasked())[0];
     const upis = await this.upiIdService.findOne();
     return { client, upis }
   }
@@ -564,7 +563,7 @@ export class AppService implements OnModuleInit {
 
   async getData(): Promise<string> {
     const profileData = await this.createInitializedObject();
-    const stats = await this.statService.findAll();
+    const stats = await this.stat1Service.findAll();
     for (const stat of stats) {
       const { count, newUser, payAmount, demoGivenToday, demoGiven, profile, client, name, secondShow } = stat;
 
