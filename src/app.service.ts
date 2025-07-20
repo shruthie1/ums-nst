@@ -8,8 +8,10 @@ import {
   ClientService, ActiveChannelsService, UpiIdService,
   Stat1Service, Stat2Service, PromoteStatService,
   ChannelsService, PromoteClientService, fetchWithTimeout,
-  ppplbot, parseError, User, TelegramManager, Channel,
-  connectionManager
+  ppplbot, parseError, TelegramManager, Channel,
+  connectionManager,
+  contains,
+  UserDocument
 } from 'common-tg-service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 
@@ -176,7 +178,7 @@ export class AppService implements OnModuleInit {
     await this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
-  async updateUsers(users: User[]) {
+  async updateUsers(users: UserDocument[]) {
     for (const user of users) {
       let telegramClient: TelegramManager;
       try {
@@ -216,7 +218,18 @@ export class AppService implements OnModuleInit {
         await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
-        parseError(error, user.mobile, false);
+        const errorDetails = parseError(error, `Failed to update user ${user.mobile}`, false);
+        const errorMessage = errorDetails.message;
+        if (contains(errorMessage.toLowerCase(),
+          [
+            'USER_DEACTIVATED_BAN',
+            'USER_DEACTIVATED',
+            'SESSION_REVOKED',
+            'AUTH_KEY_UNREGISTERED'
+          ])) {
+          console.log(`User [${user.mobile}] is deactivated or session is revoked, deleting user... id: ${user.id}, _id: ${user._id}`);
+          await this.usersService.deleteById(user.id.toString());
+        }
       } finally {
         if (telegramClient) {
           await connectionManager.unregisterClient(user.mobile);
