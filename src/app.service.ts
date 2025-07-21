@@ -287,7 +287,7 @@ export class AppService implements OnModuleInit {
     monthAgo.setHours(23, 59, 59, 999);
 
     const threeMonthAgo = new Date(now);
-    threeMonthAgo.setDate(threeMonthAgo.getDate() - 80);
+    threeMonthAgo.setDate(threeMonthAgo.getDate() - 70);
     threeMonthAgo.setHours(23, 59, 59, 999);
 
     const query = {
