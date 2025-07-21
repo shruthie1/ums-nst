@@ -215,6 +215,7 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
+        await telegramClient.client.sendMessage("me", { message: "." });
         await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
@@ -274,43 +275,43 @@ export class AppService implements OnModuleInit {
     this.activeChannelsService.createMultiple(channels);
   }
 
-  async getUser(limit?: number, skip?: number) {
-    var currentDate = new Date();
+  async getUser(limit = 300, skip = 0) {
+    const now = new Date();
 
-    var weekAgoDate = new Date(currentDate);
-    weekAgoDate.setDate(currentDate.getDate() - 7);
-    weekAgoDate.setHours(23, 59, 59, 999);
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(23, 59, 59, 999);
 
-    var monthAgoDate = new Date(currentDate);
-    monthAgoDate.setDate(currentDate.getDate() - 30);
-    monthAgoDate.setHours(23, 59, 59, 999);
+    const monthAgo = new Date(now);
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    monthAgo.setHours(23, 59, 59, 999);
 
-    var threeMonthAgoDate = new Date(currentDate);
-    threeMonthAgoDate.setDate(currentDate.getDate() - 80);
-    threeMonthAgoDate.setHours(23, 59, 59, 999);
+    const threeMonthAgo = new Date(now);
+    threeMonthAgo.setDate(threeMonthAgo.getDate() - 80);
+    threeMonthAgo.setHours(23, 59, 59, 999);
 
-    var query = {
-      $and: [
-        { expired: false },
-        { updatedAt: { $lt: weekAgoDate } },
+    const query = {
+      expired: false,
+      updatedAt: { $lt: weekAgo },
+      $or: [
         {
-          $or: [
-            { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-            { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-            { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-          ]
+          createdAt: { $gt: monthAgo },
+          updatedAt: { $lt: weekAgo }
+        },
+        {
+          createdAt: { $lte: monthAgo, $gt: threeMonthAgo },
+          updatedAt: { $lt: monthAgo }
+        },
+        {
+          createdAt: { $lte: threeMonthAgo },
+          updatedAt: { $lte: threeMonthAgo }
         }
       ]
     };
-    // const query = {
-    //   "calls.chatCallCounts": {
-    //     $ne: []
-    //   }
-    // }
 
-    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0);
-    return users;
+    return this.usersService.executeQuery(query, {}, limit, skip);
   }
+
 
   getHello(): string {
     return 'Hello World!';
