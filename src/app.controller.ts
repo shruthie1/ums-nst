@@ -2,13 +2,11 @@ import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
-import { Transaction } from './transaction.schema';
-import { CreateTransactionDto } from './create-transaction.dto';
 import { parseError } from 'common-tg-service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
@@ -135,7 +133,7 @@ export class AppController {
     this.appService.refreshPrimary();
     return '1';
   }
-  
+
   @Get('refreshSecondary')
   async refreshSecondary() {
     this.appService.refreshSecondary();
@@ -149,7 +147,7 @@ export class AppController {
     this.appService.exitPrimary();
     return '1';
   }
-  
+
   @Get('exitSecondary')
   async exitSecondary() {
     this.appService.exitSecondary();
@@ -158,7 +156,12 @@ export class AppController {
 
   @Get("exit")
   exit(): string {
-    process.exit(1)
+    console.log("Received Exit Request");
+    setTimeout(() => {
+      console.log("Exiting...");
+      process.exit(0);
+    }, 2000);
+    return "Exiting... in 2 seconds";
   }
 
   @Get('/getviddata')
