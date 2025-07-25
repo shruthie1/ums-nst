@@ -218,7 +218,12 @@ export class AppController {
 
   @Get('exit')
   exit(): string {
-    process.exit(1);
+    console.log("Exit request received");
+    setTimeout(() => {
+      console.log("Exiting application...");
+      process.exit(0);
+    }, 2000);
+    return 'Exiting application... in 2 seconds';
   }
 
   @Get('/getviddata')

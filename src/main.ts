@@ -52,6 +52,7 @@ async function bootstrap() {
     if (isShuttingDown) return;
     isShuttingDown = true;
     console.log(`${signal} received`);
+    console.log('Shutting down gracefully...');
     await app.close();
     process.exit(0);
   };
