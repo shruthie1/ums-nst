@@ -1,22 +1,22 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Transaction, TransactionSchema } from './transaction.schema';
 import {
   BuildModule, UsersModule, TelegramModule,
   UserDataModule, ClientModule, ActiveChannelsModule,
-  UpiIdModule, StatModule, Stat2Module, PromoteStatModule,
+  UpiIdModule, Stat1Module, Stat2Module, PromoteStatModule,
   ChannelsModule, PromoteClientModule,
-  TransactionModule, LoggerMiddleware
+  TransactionModule, LoggerMiddleware,
+  DynamicDataModule
 } from 'common-tg-service';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 @Module({
   imports: [
+    DynamicDataModule,
     BuildModule, UsersModule, TelegramModule,
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
-    StatModule, Stat2Module, PromoteStatModule,
+    Stat1Module, Stat2Module, PromoteStatModule,
     ChannelsModule, PromoteClientModule, TransactionModule],
   controllers: [AppController],
   providers: [AppService],

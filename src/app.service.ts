@@ -1,21 +1,19 @@
-import { Injectable, OnModuleInit, Query, NotFoundException } from '@nestjs/common';
 import * as schedule from 'node-schedule-tz';
 import { sleep, TotalList } from 'telegram/Helpers';
 import { Api } from 'telegram/tl';
 import { Dialog } from 'telegram/tl/custom/dialog';
-// src/transaction/transaction.service.ts
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Transaction } from './transaction.schema';
 import { shouldMatch } from './utils';
 import {
   UsersService, TelegramService, UserDataService,
   ClientService, ActiveChannelsService, UpiIdService,
-  StatService, Stat2Service, PromoteStatService,
+  Stat1Service, Stat2Service, PromoteStatService,
   ChannelsService, PromoteClientService, fetchWithTimeout,
-  ppplbot, parseError, User, TelegramManager, Channel,
-  connectionManager
+  ppplbot, parseError, TelegramManager, Channel,
+  connectionManager,
+  contains,
+  UserDocument
 } from 'common-tg-service';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 
 
 @Injectable()
@@ -31,7 +29,7 @@ export class AppService implements OnModuleInit {
     private clientService: ClientService,
     private activeChannelsService: ActiveChannelsService,
     private upiIdService: UpiIdService,
-    private statService: StatService,
+    private stat1Service: Stat1Service,
     private stat2Service: Stat2Service,
     private promoteStatService: PromoteStatService,
     private channelsService: ChannelsService,
@@ -46,7 +44,7 @@ export class AppService implements OnModuleInit {
     try {
       schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
         await this.clientService.refreshMap();
-        await this.statService.deleteAll();
+        await this.stat1Service.deleteAll();
       })
 
       schedule.scheduleJob('test4', '0 */3 * * *', 'Asia/Kolkata', async () => {
@@ -76,7 +74,7 @@ export class AppService implements OnModuleInit {
 
         await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
         await this.userDataService.resetPaidUsers();
-        await this.statService.deleteAll();
+        await this.stat1Service.deleteAll();
         await this.stat2Service.deleteAll();
         await this.promoteStatService.reinitPromoteStats();
       })
@@ -180,7 +178,7 @@ export class AppService implements OnModuleInit {
     await this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
-  async updateUsers(users: User[]) {
+  async updateUsers(users: UserDocument[]) {
     for (const user of users) {
       let telegramClient: TelegramManager;
       try {
@@ -217,10 +215,22 @@ export class AppService implements OnModuleInit {
           lastActive,
           tgId: me.id.toString(),
         });
+        await telegramClient.client.sendMessage("me", { message: "." });
         await this.processChannels(dialogs);
         console.log("Updated count::", result);
       } catch (error) {
-        parseError(error, user.mobile, false);
+        const errorDetails = parseError(error, `Failed to update user ${user.mobile}`, false);
+        const errorMessage = errorDetails.message;
+        if (contains(errorMessage.toLowerCase(),
+          [
+            'USER_DEACTIVATED_BAN',
+            'USER_DEACTIVATED',
+            'SESSION_REVOKED',
+            'AUTH_KEY_UNREGISTERED'
+          ])) {
+          console.log(`User [${user.mobile}] is deactivated or session is revoked, deleting user... id: ${user.id}, _id: ${user._id}`);
+          await this.usersService.deleteById(user.id.toString());
+        }
       } finally {
         if (telegramClient) {
           await connectionManager.unregisterClient(user.mobile);
@@ -260,48 +270,48 @@ export class AppService implements OnModuleInit {
         }
       })
       .filter(Boolean);
-
+    console.log("Inserting the Channels Found: ", channels.length);
     this.channelsService.createMultiple(channels);
     this.activeChannelsService.createMultiple(channels);
-
   }
 
-  async getUser(limit?: number, skip?: number) {
-    var currentDate = new Date();
+  async getUser(limit = 300, skip = 0) {
+    const now = new Date();
 
-    var weekAgoDate = new Date(currentDate);
-    weekAgoDate.setDate(currentDate.getDate() - 7);
-    weekAgoDate.setHours(23, 59, 59, 999);
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(23, 59, 59, 999);
 
-    var monthAgoDate = new Date(currentDate);
-    monthAgoDate.setDate(currentDate.getDate() - 30);
-    monthAgoDate.setHours(23, 59, 59, 999);
+    const monthAgo = new Date(now);
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    monthAgo.setHours(23, 59, 59, 999);
 
-    var threeMonthAgoDate = new Date(currentDate);
-    threeMonthAgoDate.setDate(currentDate.getDate() - 80);
-    threeMonthAgoDate.setHours(23, 59, 59, 999);
+    const threeMonthAgo = new Date(now);
+    threeMonthAgo.setDate(threeMonthAgo.getDate() - 70);
+    threeMonthAgo.setHours(23, 59, 59, 999);
 
-    var query = {
-      $and: [
-        { updatedAt: { $lt: weekAgoDate }, expired: false },
+    const query = {
+      expired: false,
+      updatedAt: { $lt: weekAgo },
+      $or: [
         {
-          $or: [
-            { createdAt: { $gt: monthAgoDate }, updatedAt: { $lt: weekAgoDate } },
-            { createdAt: { $lte: monthAgoDate, $gt: threeMonthAgoDate }, updatedAt: { $lt: monthAgoDate } },
-            { createdAt: { $lte: threeMonthAgoDate }, updatedAt: { $lte: threeMonthAgoDate } }
-          ]
+          createdAt: { $gt: monthAgo },
+          updatedAt: { $lt: weekAgo }
+        },
+        {
+          createdAt: { $lte: monthAgo, $gt: threeMonthAgo },
+          updatedAt: { $lt: monthAgo }
+        },
+        {
+          createdAt: { $lte: threeMonthAgo },
+          updatedAt: { $lte: threeMonthAgo }
         }
       ]
     };
-    // const query = {
-    //   "calls.chatCallCounts": {
-    //     $ne: []
-    //   }
-    // }
 
-    const users = await this.usersService.executeQuery(query, {}, limit || 300, skip || 0);
-    return users;
+    return this.usersService.executeQuery(query, {}, limit, skip);
   }
+
 
   getHello(): string {
     return 'Hello World!';
@@ -385,10 +395,10 @@ export class AppService implements OnModuleInit {
   }
 
   async findAllMasked(query: object) {
-    return await this.clientService.findAllMasked(query)
+    return await this.clientService.findAllMasked()
   }
   async portalData(query: object) {
-    const client = (await this.clientService.findAllMasked(query))[0];
+    const client = (await this.clientService.findAllMasked())[0];
     const upis = await this.upiIdService.findOne();
     return { client, upis }
   }
@@ -563,7 +573,7 @@ export class AppService implements OnModuleInit {
 
   async getData(): Promise<string> {
     const profileData = await this.createInitializedObject();
-    const stats = await this.statService.findAll();
+    const stats = await this.stat1Service.findAll();
     for (const stat of stats) {
       const { count, newUser, payAmount, demoGivenToday, demoGiven, profile, client, name, secondShow } = stat;
 
