@@ -175,7 +175,7 @@ export class AppService implements OnModuleInit {
   async processUsers(limit?: number, skip?: number) {
     const users = await this.getUser(limit, skip);
     console.log(`Initiated Users Update: ${users.length}`);
-    await this.updateUsers(users);
+    this.updateUsers(users);
     return `Initiated Users Update: ${users.length}`
   }
   async updateUsers(users: UserDocument[]) {
@@ -309,7 +309,7 @@ export class AppService implements OnModuleInit {
       ]
     };
 
-    return this.usersService.executeQuery(query, {}, limit, skip);
+    return await this.usersService.executeQuery(query, {}, limit, skip);
   }
 
 
