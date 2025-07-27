@@ -13,11 +13,12 @@ import {
   contains,
   UserDocument
 } from 'common-tg-service';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 
 @Injectable()
 export class AppService implements OnModuleInit {
+  private logger = new Logger(AppService.name);
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
   private joinChannelIntervalId: NodeJS.Timeout;
   private joinChannelMap: Map<string, Channel[]> = new Map();
@@ -39,54 +40,78 @@ export class AppService implements OnModuleInit {
   }
   private refresTime: number = 0;
 
+
   onModuleInit() {
-    console.log("App Module initiated !!");
+    this.logger = new Logger(AppService.name);
+    this.logger.log('App Module initiated !!');
+
     try {
-      schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
+      this.scheduleTask('refresh-map-and-stats', '0 * * * *', async () => {
         await this.clientService.refreshMap();
         await this.stat1Service.deleteAll();
-      })
+      });
 
-      schedule.scheduleJob('test4', '0 */3 * * *', 'Asia/Kolkata', async () => {
+      this.scheduleTask('process-users-every-3h', '0 */3 * * *', async () => {
         this.processUsers(400, 0);
-      })
+      });
 
-      schedule.scheduleJob('test9', '35 16 * * * ', 'Asia/Kolkata', async () => {
-        this.promoteClientService.checkPromoteClients()
-      })
+      this.scheduleTask('check-promote-clients', '35 16 * * *', async () => {
+        this.promoteClientService.checkPromoteClients();
+      });
 
-      schedule.scheduleJob('test3', ' 25 0 * * * ', 'Asia/Kolkata', async () => {
-        const now = new Date();
-        if (now.getUTCDate() % 7 === 0) {
-          await fetchWithTimeout(`${(ppplbot())}&text=Resetting Banned Channels`)
-          setTimeout(async () => {
-            // await this.activeChannelsService.resetAvailableMsgs();
-            // await this.activeChannelsService.updateBannedChannels();
-            // await this.activeChannelsService.updateDefaultReactions();
-          }, 30000);
-        }
+      this.scheduleTask('weekly-monthly-maintenance', '25 0 * * *', async () => {
+        this.handleMaintenanceTasks();
+      });
 
-        if (now.getUTCDate() % 9 === 0) {
-          setTimeout(async () => {
-            await this.activeChannelsService.resetWordRestrictions();
-          }, 30000);
-        }
+      this.logger.log('Added All Cron Jobs');
 
-        await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
-        await this.userDataService.resetPaidUsers();
-        await this.stat1Service.deleteAll();
-        await this.stat2Service.deleteAll();
-        await this.promoteStatService.reinitPromoteStats();
-      })
-      // this.checkPromotions();
-      console.log("Added All Cron Jobs");
+      // Start processing users after 2 mins (on boot)
       setTimeout(() => {
+        this.logger.log('Starting initial processUsers() after 2 minutes...');
         this.processUsers(400, 0);
-      }, 120000);
+      }, 120000); // 2 minutes in milliseconds
+
     } catch (error) {
-      console.log("Some Error: ", error);
+      this.logger.error('Error scheduling jobs', error);
     }
   }
+
+  private scheduleTask(name: string, cron: string, job: () => Promise<void>) {
+    schedule.scheduleJob(name, cron, 'Asia/Kolkata', async () => {
+      try {
+        this.logger.log(`Running scheduled job: ${name}`);
+        await job();
+      } catch (err) {
+        this.logger.error(`Error in scheduled job: ${name}`, err.stack || err.message);
+      }
+    });
+  }
+
+  private async handleMaintenanceTasks() {
+    const now = new Date();
+
+    if (now.getUTCDate() % 7 === 0) {
+      await fetchWithTimeout(`${ppplbot()}&text=Resetting Banned Channels`);
+      setTimeout(async () => {
+        // await this.activeChannelsService.resetAvailableMsgs();
+        // await this.activeChannelsService.updateBannedChannels();
+        // await this.activeChannelsService.updateDefaultReactions();
+      }, 30000);
+    }
+
+    if (now.getUTCDate() % 9 === 0) {
+      setTimeout(async () => {
+        await this.activeChannelsService.resetWordRestrictions();
+      }, 30000);
+    }
+
+    await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(await this.getPromotionStatsPlain())}`);
+    await this.userDataService.resetPaidUsers();
+    await this.stat1Service.deleteAll();
+    await this.stat2Service.deleteAll();
+    await this.promoteStatService.reinitPromoteStats();
+  }
+
 
   async checkPromotions() {
     setInterval(async () => {
