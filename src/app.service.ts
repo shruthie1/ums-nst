@@ -541,7 +541,6 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   }
   async joinchannelForClients(): Promise<string> {
     console.log('Joining Channel Started');
-    await connectionManager.disconnectAll();
     await sleep(2000);
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
