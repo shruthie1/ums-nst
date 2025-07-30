@@ -264,7 +264,6 @@ export class AppService implements OnModuleInit {
         await sleep(2000);
       }
     }
-    await connectionManager.disconnectAll()
     console.log("ProcessUsers finished");
     setTimeout(() => {
       this.promoteClientService.joinchannelForPromoteClients()
@@ -429,7 +428,6 @@ export class AppService implements OnModuleInit {
   }
   async joinchannelForClients(): Promise<string> {
     console.log("Joining Channel Started")
-    await connectionManager.disconnectAll();
     await sleep(2000);
     const clients = await this.clientService.findAll();
     clients.map(async (document) => {
