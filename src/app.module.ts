@@ -23,6 +23,7 @@ import {
   TimestampModule,
   InitModule,
   MemoryCleanerService,
+  TransactionModule,
 } from 'common-tg-service';
 
 @Module({
@@ -41,6 +42,7 @@ import {
     forwardRef(() => ChannelsModule),
     forwardRef(() => TgSignupModule),
     forwardRef(() => TimestampModule),
+    forwardRef(() => TransactionModule),
   ],
   controllers: [AppController],
   providers: [AppService, MemoryCleanerService],
