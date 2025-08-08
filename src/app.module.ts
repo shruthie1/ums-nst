@@ -43,7 +43,7 @@ import {
     forwardRef(() => TimestampModule),
   ],
   controllers: [AppController],
-  providers: [AppService, MemoryCleanerService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
