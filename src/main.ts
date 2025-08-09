@@ -27,8 +27,8 @@ async function bootstrap() {
   // ✅ CORS & Preflight Middleware
   app.use((req: CustomRequest, res: CustomResponse, next: CustomNextFunction) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, X-API-Key, Origin');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
 
     if (req.method === 'OPTIONS') {
       // Handle preflight quickly
@@ -41,7 +41,7 @@ async function bootstrap() {
   // ✅ Nest CORS config (must match middleware)
   app.enableCors({
     origin: '*',
-    allowedHeaders: ['Content-Type', 'Accept', 'X-API-Key', 'Origin'],
+    allowedHeaders: '*',
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
   });
 
