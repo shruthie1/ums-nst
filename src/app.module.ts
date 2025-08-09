@@ -24,8 +24,9 @@ import {
   InitModule,
   MemoryCleanerService,
   TransactionModule,
+  AuthGuard
 } from 'common-tg-service';
-
+import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     forwardRef(() => InitModule),
@@ -45,7 +46,10 @@ import {
     forwardRef(() => TransactionModule),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: AuthGuard,
+  }]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
