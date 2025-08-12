@@ -6,10 +6,9 @@ import {
   UpiIdModule, Stat1Module, Stat2Module, PromoteStatModule,
   ChannelsModule, PromoteClientModule,
   TransactionModule, LoggerMiddleware,
-  DynamicDataModule, AuthGuard
+  DynamicDataModule, AuthMiddleware
 } from 'common-tg-service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,13 +19,11 @@ import { APP_GUARD } from '@nestjs/core';
     Stat1Module, Stat2Module, PromoteStatModule,
     ChannelsModule, PromoteClientModule, TransactionModule],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_GUARD,
-    useClass: AuthGuard,
-  }],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }
