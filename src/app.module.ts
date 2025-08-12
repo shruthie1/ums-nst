@@ -22,11 +22,9 @@ import {
   LoggerMiddleware,
   TimestampModule,
   InitModule,
-  MemoryCleanerService,
   TransactionModule,
-  AuthGuard
+  AuthMiddleware
 } from 'common-tg-service';
-import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     forwardRef(() => InitModule),
@@ -46,13 +44,11 @@ import { APP_GUARD } from '@nestjs/core';
     forwardRef(() => TransactionModule),
   ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_GUARD,
-    useClass: AuthGuard,
-  }]
+  providers: [AppService]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }
