@@ -6,9 +6,9 @@ import { parseError } from 'common-tg-service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
-  @Get()
+  @Get(['', '/health'])
   getHello(): string {
     return this.appService.getHello();
   }
