@@ -11,7 +11,8 @@ import {
   ppplbot, parseError, TelegramManager, Channel,
   connectionManager,
   contains,
-  UserDocument
+  UserDocument,
+  ActiveChannel
 } from 'common-tg-service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
@@ -21,7 +22,7 @@ export class AppService implements OnModuleInit {
   private logger = new Logger(AppService.name);
   private userAccessData: Map<string, { timestamps: number[], videoDetails: any }> = new Map();
   private joinChannelIntervalId: NodeJS.Timeout;
-  private joinChannelMap: Map<string, Channel[]> = new Map();
+  private joinChannelMap: Map<string, Channel[] | ActiveChannel[]> = new Map();
 
   constructor(
     private usersService: UsersService,
