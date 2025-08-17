@@ -86,11 +86,14 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         },
       );
 
-      // schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
-      //   await this.clientService.refreshMap();
-      //   this.processUsers(400, 0);
-      //   await this.statService.deleteAll();
-      // })
+      schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
+        try {
+          const res = await this.userDataService.removeOlderThanOneMonth();
+          console.log("Deleted userdata older than month | count: ", res.deletedCount)
+        } catch (e) {
+          console.error("Error Deleteing old userData", e)
+        }
+      })
 
       // schedule.scheduleJob('test3', '25 2,9 * * * ', 'Asia/Kolkata', async () => {
       //   const now = new Date();
