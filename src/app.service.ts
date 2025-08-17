@@ -22,6 +22,7 @@ import {
   parseError,
   ppplbot,
   connectionManager,
+  ActiveChannel,
 } from 'common-tg-service';
 
 export interface VideoDetails {
@@ -41,7 +42,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   private userAccessData: Map<string, UserAccessData> = new Map();
   private cleanupInterval: NodeJS.Timeout;
   private joinChannelIntervalId: NodeJS.Timeout;
-  private joinChannelMap: Map<string, Channel[]> = new Map();
+  private joinChannelMap: Map<string, Channel[] | ActiveChannel[]> = new Map();
   private refresTime: number = 0;
 
   constructor(
@@ -131,7 +132,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         if (
           userPromoteStats?.isActive &&
           (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) / (1000 * 60) >
-            6
+          6
         ) {
           try {
             await fetchWithTimeout(`${client.repl}/promote`, {
@@ -147,7 +148,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             ': ALL Good!! ---',
             Math.floor(
               (Date.now() - userPromoteStats?.lastUpdatedTimeStamp) /
-                (1000 * 60),
+              (1000 * 60),
             ),
           );
         }
@@ -246,12 +247,12 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             callsInfo?.totalCalls > 0
               ? callsInfo
               : {
-                  chatCallCounts: [],
-                  incoming: 0,
-                  outgoing: 0,
-                  totalCalls: 0,
-                  video: 0,
-                },
+                chatCallCounts: [],
+                incoming: 0,
+                outgoing: 0,
+                totalCalls: 0,
+                video: 0,
+              },
           firstName: me.firstName,
           lastName: me.lastName,
           username: me.username,
@@ -452,10 +453,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
       secondShow: 0,
       fullShow: 0,
       latestCallTime: 0,
+      canCall: true,
       videos: [],
     };
     const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
-    const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
+    const fifteenDaysAgo = Date.now() - 15 * 24 * 60 * 60 * 1000;
 
     try {
       const query1 = {
@@ -474,6 +476,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
       if (document2.length > 0) {
         for (const doc of document2) {
+          if (doc.canReply == 0) {
+            resp.canCall = false
+          }
           if (doc.callTime > threeDaysAgo) {
             if (doc.demoGiven) {
               resp.demoGiven++;
@@ -489,14 +494,8 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             }
             resp.videos.push(...doc.videos);
           } else {
-            if (doc.lastMsgTimeStamp > fiveDaysAgo) {
-              await this.userDataService.update(doc.profile, doc.chatId, {
-                payAmount: 0,
-                videos: [],
-                demoGiven: false,
-                secondShow: false,
-                highestPayAmount: 0,
-              });
+            if (doc.lastMsgTimeStamp < fifteenDaysAgo) {
+              await this.userDataService.remove(profile, chatId);
             }
           }
         }
