@@ -498,6 +498,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             resp.videos.push(...doc.videos);
           } else {
             if (doc.lastMsgTimeStamp < fifteenDaysAgo) {
+              await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(`ReSetting UserData for Profile: ${doc.profile} | ChatId: ${doc.chatId}`)}`,);
               await this.userDataService.update(doc.profile, doc.chatId, {
                 payAmount: 0,
                 videos: [],
