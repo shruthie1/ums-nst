@@ -498,7 +498,13 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             resp.videos.push(...doc.videos);
           } else {
             if (doc.lastMsgTimeStamp < fifteenDaysAgo) {
-              await this.userDataService.remove(profile, chatId);
+              await this.userDataService.update(doc.profile, doc.chatId, {
+                payAmount: 0,
+                videos: [],
+                demoGiven: false,
+                secondShow: false,
+                highestPayAmount: 0,
+              });
             }
           }
         }
