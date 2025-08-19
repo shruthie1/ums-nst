@@ -86,7 +86,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
         },
       );
 
-      schedule.scheduleJob('test3', '0 * * * * ', 'Asia/Kolkata', async () => {
+      schedule.scheduleJob('test3', '0 3 * * * ', 'Asia/Kolkata', async () => {
         try {
           const res = await this.userDataService.removeRedundantData();
           console.log("Deleted userdata older than month | count: ", res.deletedCount)
