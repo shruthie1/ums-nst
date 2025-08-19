@@ -460,7 +460,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
       videos: [],
     };
     const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
-    const fifteenDaysAgo = Date.now() - 15 * 24 * 60 * 60 * 1000;
+    const twentyDays = Date.now() - 20 * 24 * 60 * 60 * 1000;
 
     try {
       const query1 = {
@@ -497,11 +497,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
             }
             resp.videos.push(...doc.videos);
           } else {
-            if (doc.lastMsgTimeStamp < fifteenDaysAgo) {
+            if (doc.lastMsgTimeStamp < twentyDays) {
               await fetchWithTimeout(`${ppplbot()}&text=${encodeURIComponent(`ReSetting UserData for Profile: ${doc.profile} | ChatId: ${doc.chatId}\n\n LastMsg: ${getReadableTimeDifference(doc.lastMsgTimeStamp, Date.now())} `)}`,);
               await this.userDataService.update(doc.profile, doc.chatId, {
                 payAmount: 0,
-                videos: [],
                 demoGiven: false,
                 secondShow: false,
                 highestPayAmount: 0,
