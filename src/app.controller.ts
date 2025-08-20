@@ -7,8 +7,6 @@ import {
   Post,
   Query,
   Res,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AppService, VideoDetails } from './app.service';
 import {
