@@ -6,7 +6,8 @@ import {
   UpiIdModule, Stat1Module, Stat2Module, PromoteStatModule,
   ChannelsModule, PromoteClientModule,
   TransactionModule, LoggerMiddleware,
-  DynamicDataModule, AuthGuard
+  DynamicDataModule, AuthGuard,
+  BotsModule
 } from 'common-tg-service';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
@@ -14,6 +15,7 @@ import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     DynamicDataModule,
+    BotsModule,
     BuildModule, UsersModule, TelegramModule,
     UserDataModule, ClientModule,
     ActiveChannelsModule, UpiIdModule,
