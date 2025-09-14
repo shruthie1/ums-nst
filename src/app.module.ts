@@ -23,12 +23,14 @@ import {
   TimestampModule,
   InitModule,
   TransactionModule,
-  AuthGuard
+  AuthGuard,
+  BotsModule
 } from 'common-tg-service';
 import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
     forwardRef(() => InitModule),
+    forwardRef(() => BotsModule),
     forwardRef(() => BuildModule),
     forwardRef(() => UsersModule),
     forwardRef(() => TelegramModule),
